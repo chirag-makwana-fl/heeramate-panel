@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -12,10 +12,12 @@ import {
   Menu,
   X,
   Megaphone,
-  HelpCircle
+  HelpCircle,
+  UserX
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import api from '../api/client';
 
 const Layout = () => {
   const { admin, logout } = useAuth();
@@ -28,9 +30,31 @@ const Layout = () => {
     navigate('/login');
   };
 
+  const [deletedCount, setDeletedCount] = useState(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchDeletedCount = async () => {
+      try {
+        const res = await api.get('/deleted-users/count');
+        if (isMounted) {
+          setDeletedCount(res.data?.data?.count || 0);
+        }
+      } catch (_) {}
+    };
+
+    fetchDeletedCount();
+    const interval = setInterval(fetchDeletedCount, 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
   const navItems = [
     { to: '/', label: 'Overview', icon: LayoutDashboard },
     { to: '/users', label: 'Artisans & Activity', icon: Users },
+    { to: '/deleted-accounts', label: 'Deleted Accounts', icon: UserX, badge: deletedCount },
     { to: '/notifications', label: 'Broadcast Push', icon: Megaphone },
     { to: '/faqs', label: 'Help & FAQs', icon: HelpCircle },
   ];
@@ -88,7 +112,7 @@ const Layout = () => {
               end={item.to === '/'}
               onClick={() => setMobileMenuOpen(false)}
               className={({ isActive }) =>
-                `flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   isActive
                     ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/25'
                     : isDark
@@ -97,8 +121,15 @@ const Layout = () => {
                 }`
               }
             >
-              <Icon className="w-4 h-4" />
-              <span>{item.label}</span>
+              <div className="flex items-center space-x-3 truncate">
+                <Icon className="w-4 h-4 shrink-0" />
+                <span className="truncate">{item.label}</span>
+              </div>
+              {item.badge !== undefined && item.badge > 0 && (
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-rose-500/15 text-rose-500 border border-rose-500/25">
+                  {item.badge}
+                </span>
+              )}
             </NavLink>
           );
         })}
