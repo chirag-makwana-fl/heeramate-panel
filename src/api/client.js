@@ -3,9 +3,7 @@ import axios from 'axios';
 // Resolve base API URL depending on environment and user config
 const rawUrl =
   import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD
-    ? 'https://api-heeramate.alovirainnovations.com/api/v1'
-    : 'http://localhost:3000/api/v1');
+  'https://api-heeramate.alovirainnovations.com/api/v1';
 
 // Normalize URL and ensure it points to the /admin route namespace
 const cleanUrl = rawUrl.replace(/\/+$/, '');

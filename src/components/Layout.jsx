@@ -13,7 +13,9 @@ import {
   X,
   Megaphone,
   HelpCircle,
-  UserX
+  UserX,
+  ShieldCheck,
+  HeartHandshake
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -54,9 +56,11 @@ const Layout = () => {
   const navItems = [
     { to: '/', label: 'Overview', icon: LayoutDashboard },
     { to: '/users', label: 'Artisans & Activity', icon: Users },
+    { to: '/retention', label: 'Retention & Inactivity', icon: HeartHandshake },
     { to: '/deleted-accounts', label: 'Deleted Accounts', icon: UserX, badge: deletedCount },
     { to: '/notifications', label: 'Broadcast Push', icon: Megaphone },
     { to: '/faqs', label: 'Help & FAQs', icon: HelpCircle },
+    { to: '/security', label: 'Security', icon: ShieldCheck },
   ];
 
   const todayStr = new Intl.DateTimeFormat('en-IN', {

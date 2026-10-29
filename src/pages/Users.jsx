@@ -16,7 +16,8 @@ import {
   IndianRupee,
   Wallet,
   Sparkles,
-  UserPlus
+  UserPlus,
+  Bell
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import UserAvatar from '../components/UserAvatar';
@@ -122,6 +123,8 @@ const Users = () => {
     { id: 'active_15d', label: 'Active (15 Days)' },
     { id: 'active_monthly', label: 'Active (Monthly)' },
     { id: 'inactive_7d', label: 'Inactive (>7 Days)' },
+    { id: 'inactive_14d', label: 'Inactive (>14 Days)' },
+    { id: 'never_logged', label: 'Never Logged' },
   ];
 
   // Theme classes
@@ -254,10 +257,6 @@ const Users = () => {
                   <th className="py-3.5 px-4">Artisan Profile</th>
                   <th className="py-3.5 px-4">Joined Date & Tenure</th>
                   <th className="py-3.5 px-3">Language</th>
-                  <th className="py-3.5 px-3 text-center">Work Days</th>
-                  <th className="py-3.5 px-3 text-right">Diamonds Tracked</th>
-                  <th className="py-3.5 px-3 text-right">Total Earnings</th>
-                  <th className="py-3.5 px-3 text-right">Upad (Advance)</th>
                   <th className="py-3.5 px-3">Latest Log</th>
                   <th className="py-3.5 px-3">Status</th>
                   <th className="py-3.5 px-4 text-center">Action</th>
@@ -314,26 +313,6 @@ const Users = () => {
                         </span>
                       </td>
 
-                      {/* Total Logged Days */}
-                      <td className="py-3.5 px-3 text-center font-semibold">
-                        {u.total_days_logged} <span className={`text-[10px] ${textMuted}`}>days</span>
-                      </td>
-
-                      {/* Total Diamonds */}
-                      <td className="py-3.5 px-3 text-right font-bold whitespace-nowrap">
-                        {Number(u.total_diamonds_logged).toLocaleString('en-IN')}
-                      </td>
-
-                      {/* Total Earnings */}
-                      <td className="py-3.5 px-3 text-right font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                        ₹{Number(u.total_earnings_logged).toLocaleString('en-IN')}
-                      </td>
-
-                      {/* Total Upad */}
-                      <td className="py-3.5 px-3 text-right text-amber-600 dark:text-amber-400 font-semibold whitespace-nowrap">
-                        {u.total_upad_amount > 0 ? `₹${Number(u.total_upad_amount).toLocaleString('en-IN')}` : '-'}
-                      </td>
-
                       {/* Latest Work Date */}
                       <td className="py-3.5 px-3 whitespace-nowrap text-[11px]">
                         {u.latest_work_date ? (
@@ -358,17 +337,32 @@ const Users = () => {
 
                       {/* Action */}
                       <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                        <Link
-                          to={`/users/${u.id}`}
-                          className={`inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
-                            isDark
-                              ? 'bg-slate-800 hover:bg-cyan-600 text-slate-300 hover:text-white border-slate-700 hover:border-cyan-500'
-                              : 'bg-slate-100 hover:bg-cyan-600 text-slate-700 hover:text-white border-slate-200 hover:border-cyan-500 shadow-sm'
-                          }`}
-                        >
-                          <span>Inspect</span>
-                          <ArrowUpRight className="w-3 h-3" />
-                        </Link>
+                        <div className="inline-flex items-center space-x-1.5">
+                          <Link
+                            to={`/notifications?userId=${u.id}`}
+                            title="Send push notification to this artisan"
+                            className={`inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                              isDark
+                                ? 'bg-slate-800 hover:bg-amber-600 text-slate-300 hover:text-white border-slate-700 hover:border-amber-500'
+                                : 'bg-slate-100 hover:bg-amber-500 text-slate-700 hover:text-white border-slate-200 hover:border-amber-500 shadow-sm'
+                            }`}
+                          >
+                            <Bell className="w-3 h-3" />
+                            <span>Notify</span>
+                          </Link>
+
+                          <Link
+                            to={`/users/${u.id}`}
+                            className={`inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                              isDark
+                                ? 'bg-slate-800 hover:bg-cyan-600 text-slate-300 hover:text-white border-slate-700 hover:border-cyan-500'
+                                : 'bg-slate-100 hover:bg-cyan-600 text-slate-700 hover:text-white border-slate-200 hover:border-cyan-500 shadow-sm'
+                            }`}
+                          >
+                            <span>Inspect</span>
+                            <ArrowUpRight className="w-3 h-3" />
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   );

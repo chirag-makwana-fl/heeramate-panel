@@ -15,7 +15,8 @@ import {
   Clock,
   RotateCw,
   HardDrive,
-  Sparkles
+  Sparkles,
+  Megaphone
 } from 'lucide-react';
 import api from '../api/client';
 import { useTheme } from '../context/ThemeContext';
@@ -232,8 +233,16 @@ const UserDetail = () => {
           </div>
         </div>
 
-        {/* Action button */}
+        {/* Action buttons */}
         <div className="flex items-center space-x-3 self-start md:self-auto">
+          <Link
+            to={`/notifications?userId=${user.id}`}
+            className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-cyan-600 hover:bg-cyan-500 text-white shadow-md shadow-cyan-600/20 transition-all"
+          >
+            <Megaphone className="w-3.5 h-3.5" />
+            <span>Send Notification</span>
+          </Link>
+
           <button
             onClick={toggleStatus}
             disabled={statusUpdating}

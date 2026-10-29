@@ -11,6 +11,8 @@ import UserDetail from './pages/UserDetail';
 import Notifications from './pages/Notifications';
 import Faqs from './pages/Faqs';
 import DeletedUsers from './pages/DeletedUsers';
+import Retention from './pages/Retention';
+import Security from './pages/Security';
 
 function App() {
   return (
@@ -33,9 +35,11 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="users" element={<Users />} />
               <Route path="users/:id" element={<UserDetail />} />
+              <Route path="retention" element={<Retention />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="deleted-accounts" element={<DeletedUsers />} />
               <Route path="faqs" element={<Faqs />} />
+              <Route path="security" element={<Security />} />
             </Route>
 
             {/* Catch-all redirect */}
