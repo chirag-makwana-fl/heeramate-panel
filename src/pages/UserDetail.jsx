@@ -208,6 +208,16 @@ const UserDetail = () => {
                   Active
                 </span>
               )}
+              {user.app_mode === 'advance' ? (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 inline-flex items-center space-x-1 shadow-sm">
+                  <Sparkles className="w-3 h-3 text-purple-500 animate-pulse" />
+                  <span>Advance Mode</span>
+                </span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20">
+                  Simple Mode
+                </span>
+              )}
             </div>
 
             <div className={`flex flex-wrap items-center gap-3 text-xs mt-1.5 ${textMuted}`}>
@@ -218,6 +228,13 @@ const UserDetail = () => {
               <span className="inline-flex items-center space-x-1">
                 <Globe2 className="w-3.5 h-3.5 text-slate-400" />
                 <span>Language: {user.preferred_language === 'gu' ? 'ગુજરાતી' : 'English'}</span>
+              </span>
+              <span>•</span>
+              <span className="inline-flex items-center space-x-1">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">Mode:</span>
+                <span className={user.app_mode === 'advance' ? 'text-purple-600 dark:text-purple-400 font-bold' : ''}>
+                  {user.app_mode === 'advance' ? '⚡ Advance' : 'Simple'}
+                </span>
               </span>
               <span>•</span>
               <span className="inline-flex items-center space-x-1.5 text-cyan-600 dark:text-cyan-400 font-semibold">

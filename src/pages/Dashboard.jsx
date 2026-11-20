@@ -109,6 +109,8 @@ const Dashboard = () => {
 
   const guPct = kpi.total_users > 0 ? Math.round((demographics.gujarati_users / kpi.total_users) * 100) : 0;
   const enPct = 100 - guPct;
+  const advancePct = kpi.total_users > 0 ? Math.round(((demographics.advance_mode_users || 0) / kpi.total_users) * 100) : 0;
+  const simplePct = 100 - advancePct;
 
   // Theme helper classes
   const cardBg = isDark
@@ -564,9 +566,16 @@ const Dashboard = () => {
                       <div className="flex items-center space-x-2.5 min-w-0">
                         <UserAvatar src={u.profile_image_url} name={u.full_name} size="sm" />
                         <div className="truncate">
-                          <p className="text-xs font-semibold group-hover:text-cyan-600 dark:group-hover:text-cyan-400 truncate">
-                            {u.full_name || 'Artisan'}
-                          </p>
+                          <div className="flex items-center space-x-1">
+                            <p className="text-xs font-semibold group-hover:text-cyan-600 dark:group-hover:text-cyan-400 truncate">
+                              {u.full_name || 'Artisan'}
+                            </p>
+                            {u.app_mode === 'advance' && (
+                              <span className="text-[8px] font-bold px-1 py-0.2 rounded bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30">
+                                ADV
+                              </span>
+                            )}
+                          </div>
                           <p className={`text-[10px] truncate ${textMuted}`}>
                             {u.mobile_number || u.email}
                           </p>
@@ -609,6 +618,29 @@ const Dashboard = () => {
                 <div
                   className="bg-blue-600 h-full"
                   style={{ width: `${enPct}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Experience Mode Preference */}
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-between text-xs mb-2">
+                <span className="font-medium flex items-center space-x-1">
+                  <Sparkles className="w-3 h-3 text-purple-500" />
+                  <span>App Mode</span>
+                </span>
+                <span className={textMuted}>
+                  {demographics.advance_mode_users || 0} Advance / {demographics.simple_mode_users || 0} Simple
+                </span>
+              </div>
+              <div className="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden flex">
+                <div
+                  className="bg-purple-500 h-full"
+                  style={{ width: `${advancePct}%` }}
+                />
+                <div
+                  className="bg-slate-400 dark:bg-slate-600 h-full"
+                  style={{ width: `${simplePct}%` }}
                 />
               </div>
             </div>

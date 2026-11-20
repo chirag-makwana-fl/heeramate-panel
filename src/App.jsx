@@ -13,6 +13,7 @@ import Faqs from './pages/Faqs';
 import DeletedUsers from './pages/DeletedUsers';
 import Retention from './pages/Retention';
 import Security from './pages/Security';
+import SplashManager from './pages/SplashManager';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
               <Route path="users/:id" element={<UserDetail />} />
               <Route path="retention" element={<Retention />} />
               <Route path="notifications" element={<Notifications />} />
+              <Route path="splash" element={<SplashManager />} />
               <Route path="deleted-accounts" element={<DeletedUsers />} />
               <Route path="faqs" element={<Faqs />} />
               <Route path="security" element={<Security />} />

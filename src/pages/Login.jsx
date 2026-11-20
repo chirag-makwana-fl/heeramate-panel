@@ -5,8 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
 const Login = () => {
-  const [email, setEmail] = useState('admin@heeramate.com');
-  const [password, setPassword] = useState('Admin@123456');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAuth();
@@ -95,7 +95,7 @@ const Login = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@heeramate.com"
+                  placeholder="Enter your email"
                   className={`w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors border ${
                     isDark
                       ? 'bg-slate-950 border-slate-800 text-white placeholder-slate-500'
@@ -141,13 +141,6 @@ const Login = () => {
               )}
             </button>
           </form>
-
-          {/* Quick default credential helper note */}
-          <div className={`mt-6 pt-5 border-t text-center ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
-            <p className={`text-[11px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-              Default: <code className="text-cyan-600 dark:text-cyan-400 font-medium">admin@heeramate.com</code> / <code className="text-cyan-600 dark:text-cyan-400 font-medium">Admin@123456</code>
-            </p>
-          </div>
         </div>
       </div>
     </div>

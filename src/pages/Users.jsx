@@ -69,6 +69,7 @@ const Users = () => {
   const [search, setSearch] = useState('');
   const [activity, setActivity] = useState(initialActivity);
   const [language, setLanguage] = useState('all');
+  const [appMode, setAppMode] = useState('all');
   const [status, setStatus] = useState('all');
 
   // Sync URL query param if present
@@ -90,6 +91,7 @@ const Users = () => {
           search,
           activity,
           language,
+          app_mode: appMode,
           status,
         },
       });
@@ -104,7 +106,7 @@ const Users = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [page, activity, language, status]);
+  }, [page, activity, language, appMode, status]);
 
   // Debounced search trigger
   useEffect(() => {
@@ -206,6 +208,20 @@ const Users = () => {
 
         {/* Dropdown Filters */}
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* App Mode filter */}
+          <select
+            value={appMode}
+            onChange={(e) => {
+              setAppMode(e.target.value);
+              setPage(1);
+            }}
+            className={`px-3 py-2 rounded-xl text-xs font-medium focus:outline-none focus:border-cyan-500 border ${inputBg}`}
+          >
+            <option value="all">App Mode: All</option>
+            <option value="advance">⚡ Advance Mode</option>
+            <option value="simple">Simple Mode</option>
+          </select>
+
           {/* Language filter */}
           <select
             value={language}
@@ -256,6 +272,7 @@ const Users = () => {
                 <tr>
                   <th className="py-3.5 px-4">Artisan Profile</th>
                   <th className="py-3.5 px-4">Joined Date & Tenure</th>
+                  <th className="py-3.5 px-3">App Mode</th>
                   <th className="py-3.5 px-3">Language</th>
                   <th className="py-3.5 px-3">Latest Log</th>
                   <th className="py-3.5 px-3">Status</th>
@@ -266,6 +283,7 @@ const Users = () => {
                 {users.map((u) => {
                   const initial = u.full_name ? u.full_name.charAt(0).toUpperCase() : 'A';
                   const isSuspended = u.status === 'suspended';
+                  const isAdvance = u.app_mode === 'advance';
                   const joinFormatted = formatJoinDateTime(u.created_at);
                   const duration = getConnectedDuration(u.created_at);
 
@@ -276,9 +294,17 @@ const Users = () => {
                         <div className="flex items-center space-x-3">
                           <UserAvatar src={u.profile_image_url} name={u.full_name} size="md" />
                           <div className="min-w-0">
-                            <p className="font-semibold truncate text-sm">
-                              {u.full_name}
-                            </p>
+                            <div className="flex items-center space-x-1.5">
+                              <p className="font-semibold truncate text-sm">
+                                {u.full_name}
+                              </p>
+                              {isAdvance && (
+                                <span className="inline-flex items-center space-x-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30">
+                                  <Sparkles className="w-2.5 h-2.5" />
+                                  <span>ADVANCE</span>
+                                </span>
+                              )}
+                            </div>
                             <p className={`text-xs flex items-center space-x-1.5 mt-0.5 ${textMuted}`}>
                               <span>{u.mobile_number || u.email || 'No contact'}</span>
                               <span className={`text-[10px] uppercase font-semibold px-1 py-0.2 rounded border ${
@@ -303,6 +329,20 @@ const Users = () => {
                             <span>{duration}</span>
                           </span>
                         </div>
+                      </td>
+
+                      {/* App Mode */}
+                      <td className="py-3.5 px-3 whitespace-nowrap">
+                        {isAdvance ? (
+                          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 shadow-sm shadow-purple-500/10">
+                            <Sparkles className="w-3 h-3 text-purple-500 animate-pulse" />
+                            <span>Advance</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20">
+                            <span>Simple</span>
+                          </span>
+                        )}
                       </td>
 
                       {/* Language */}

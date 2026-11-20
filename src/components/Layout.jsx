@@ -15,7 +15,8 @@ import {
   HelpCircle,
   UserX,
   ShieldCheck,
-  HeartHandshake
+  HeartHandshake,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -59,6 +60,7 @@ const Layout = () => {
     { to: '/retention', label: 'Retention & Inactivity', icon: HeartHandshake },
     { to: '/deleted-accounts', label: 'Deleted Accounts', icon: UserX, badge: deletedCount },
     { to: '/notifications', label: 'Broadcast Push', icon: Megaphone },
+    { to: '/splash', label: 'Festival & Splash', icon: Sparkles },
     { to: '/faqs', label: 'Help & FAQs', icon: HelpCircle },
     { to: '/security', label: 'Security', icon: ShieldCheck },
   ];
