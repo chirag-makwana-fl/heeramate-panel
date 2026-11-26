@@ -248,12 +248,12 @@ const Notifications = () => {
   };
 
   const cardBg = isDark
-    ? 'bg-slate-900 border-slate-800 text-slate-100'
-    : 'bg-white border-slate-200 text-slate-800 shadow-sm';
+    ? 'bg-[#0e131d] border-slate-800/80 text-slate-100'
+    : 'bg-white border-slate-200 text-slate-900';
   const textMuted = isDark ? 'text-slate-400' : 'text-slate-500';
   const inputBg = isDark
-    ? 'bg-slate-950 border-slate-800 text-white placeholder-slate-500'
-    : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400';
+    ? 'bg-slate-900 border-slate-800 text-white placeholder-slate-500'
+    : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400';
 
   const audienceOptions = [
     {
@@ -332,48 +332,45 @@ const Notifications = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+    <div className="space-y-5 max-w-7xl mx-auto pb-12">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <div className="flex items-center space-x-2">
-            <Megaphone className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
-            <h1 className={`text-2xl font-bold tracking-tight ${
-              isDark ? 'text-white' : 'text-slate-900'
-            }`}>
-              Broadcast Push Notifications
-            </h1>
-          </div>
-          <p className={`text-xs sm:text-sm mt-1 ${textMuted}`}>
-            Send announcements, work reminders, greetings, and emergency alerts to all users or specific artisans.
+          <h1 className={`text-xl font-semibold tracking-tight ${
+            isDark ? 'text-white' : 'text-slate-900'
+          }`}>
+            Push Broadcasts
+          </h1>
+          <p className={`text-xs mt-0.5 ${textMuted}`}>
+            Send announcements, work reminders, and alerts to artisan cohorts or individuals.
           </p>
         </div>
 
         {/* Tab switch */}
-        <div className={`flex items-center p-1 rounded-xl border text-xs font-semibold ${
-          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+        <div className={`inline-flex p-0.5 rounded-lg border text-xs font-medium self-start sm:self-auto ${
+          isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-200'
         }`}>
           <button
             onClick={() => setActiveTab('compose')}
-            className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-lg transition-all ${
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md transition-colors ${
               activeTab === 'compose'
-                ? 'bg-cyan-600 text-white shadow-sm'
-                : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                ? isDark ? 'bg-slate-800 text-white' : 'bg-white text-slate-900 shadow-xs'
+                : textMuted
             }`}
           >
             <Send className="w-3.5 h-3.5" />
-            <span>Compose Broadcast</span>
+            <span>Compose</span>
           </button>
           <button
             onClick={() => setActiveTab('history')}
-            className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-lg transition-all ${
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md transition-colors ${
               activeTab === 'history'
-                ? 'bg-cyan-600 text-white shadow-sm'
-                : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                ? isDark ? 'bg-slate-800 text-white' : 'bg-white text-slate-900 shadow-xs'
+                : textMuted
             }`}
           >
             <History className="w-3.5 h-3.5" />
-            <span>Campaign History</span>
+            <span>History</span>
           </button>
         </div>
       </div>
@@ -448,7 +445,9 @@ const Notifications = () => {
                         }}
                         className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
                           isSelected
-                            ? 'bg-cyan-600 text-white border-cyan-500 shadow-md shadow-cyan-600/25 ring-2 ring-cyan-500/20'
+                            ? isDark
+                              ? 'bg-white text-slate-950 border-white'
+                              : 'bg-slate-900 text-white border-slate-900'
                             : isDark
                             ? 'bg-slate-950/70 border-slate-800 text-slate-300 hover:bg-slate-850 hover:border-slate-700'
                             : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white hover:border-slate-300'
@@ -829,7 +828,11 @@ const Notifications = () => {
                 <button
                   type="submit"
                   disabled={sending}
-                  className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold text-xs shadow-lg shadow-cyan-600/25 transition-all disabled:opacity-50 active:scale-[0.98]"
+                  className={`w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-5 py-2 rounded-lg font-medium text-xs transition-colors disabled:opacity-50 ${
+                    isDark
+                      ? 'bg-white text-slate-950 hover:bg-slate-200'
+                      : 'bg-slate-900 text-white hover:bg-slate-800'
+                  }`}
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>Send Notification</span>
@@ -1113,7 +1116,11 @@ const Notifications = () => {
                 type="button"
                 onClick={handleConfirmSend}
                 disabled={sending}
-                className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold text-xs shadow-lg shadow-cyan-600/25 transition-all disabled:opacity-50 active:scale-[0.98]"
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium text-xs transition-colors disabled:opacity-50 ${
+                  isDark
+                    ? 'bg-white text-slate-950 hover:bg-slate-200'
+                    : 'bg-slate-900 text-white hover:bg-slate-800'
+                }`}
               >
                 {sending ? (
                   <>

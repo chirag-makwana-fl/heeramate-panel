@@ -119,53 +119,52 @@ const Users = () => {
 
   const activityTabs = [
     { id: 'all', label: 'All Artisans' },
-    { id: 'new_users', label: '✨ New Joined (Last 7 Days)', highlight: true },
-    { id: 'active_today', label: 'Active Today (Daily)' },
-    { id: 'active_7d', label: 'Active (Week / 7 Days)' },
-    { id: 'active_15d', label: 'Active (15 Days)' },
-    { id: 'active_monthly', label: 'Active (Monthly)' },
-    { id: 'inactive_7d', label: 'Inactive (>7 Days)' },
-    { id: 'inactive_14d', label: 'Inactive (>14 Days)' },
+    { id: 'new_users', label: 'New Joined (7d)', highlight: true },
+    { id: 'active_today', label: 'Active Today' },
+    { id: 'active_7d', label: '7 Days' },
+    { id: 'active_15d', label: '15 Days' },
+    { id: 'active_monthly', label: 'Monthly' },
+    { id: 'inactive_7d', label: 'Inactive (>7d)' },
+    { id: 'inactive_14d', label: 'Inactive (>14d)' },
     { id: 'never_logged', label: 'Never Logged' },
   ];
 
   // Theme classes
   const cardBg = isDark
-    ? 'bg-slate-900 border-slate-800 text-slate-100'
-    : 'bg-white border-slate-200 text-slate-800 shadow-sm';
+    ? 'bg-[#0e131d] border-slate-800/80 text-slate-100'
+    : 'bg-white border-slate-200 text-slate-900';
   const textMuted = isDark ? 'text-slate-400' : 'text-slate-500';
-  const tableHeaderBg = isDark ? 'bg-slate-950/70 text-slate-400' : 'bg-slate-100/90 text-slate-600';
-  const tableBorder = isDark ? 'divide-slate-800/70 border-slate-800' : 'divide-slate-200 border-slate-200';
+  const tableHeaderBg = isDark ? 'bg-slate-950/60 text-slate-400' : 'bg-slate-50 text-slate-500';
+  const tableBorder = isDark ? 'divide-slate-800/70 border-slate-800/80' : 'divide-slate-200 border-slate-200';
   const inputBg = isDark
     ? 'bg-slate-900 border-slate-800 text-white placeholder-slate-500'
-    : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400 shadow-sm';
+    : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400';
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-5 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className={`text-2xl font-bold tracking-tight flex items-center space-x-2.5 ${
+          <h1 className={`text-xl font-semibold tracking-tight ${
             isDark ? 'text-white' : 'text-slate-900'
           }`}>
-            <UsersIcon className="w-6 h-6 text-cyan-500" />
-            <span>Artisan Directory & Work Tracking</span>
+            Artisan Directory
           </h1>
-          <p className={`text-xs sm:text-sm mt-1 ${textMuted}`}>
-            Track when users join, how long they stay connected, and their daily diamond work habits.
+          <p className={`text-xs mt-0.5 ${textMuted}`}>
+            Track artisan onboarding, mode preferences, and daily work consistency.
           </p>
         </div>
 
-        <div className={`px-3.5 py-2 rounded-xl border text-xs font-medium self-start sm:self-auto ${
-          isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-white border-slate-200 text-slate-700 shadow-sm'
+        <div className={`px-3 py-1.5 rounded-lg border text-xs font-medium self-start sm:self-auto tabular-nums ${
+          isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-white border-slate-200 text-slate-700'
         }`}>
-          Total Filtered Artisans: <span className="text-cyan-600 dark:text-cyan-400 font-bold">{pagination.total_count}</span>
+          Total: <span className="font-semibold">{pagination.total_count}</span>
         </div>
       </div>
 
       {/* Activity & Cohort Filter Tabs */}
-      <div className={`flex flex-wrap gap-2 border-b pb-3 ${
-        isDark ? 'border-slate-800' : 'border-slate-200'
+      <div className={`flex flex-wrap gap-1.5 border-b pb-3 ${
+        isDark ? 'border-slate-800/80' : 'border-slate-200'
       }`}>
         {activityTabs.map((tab) => (
           <button
@@ -175,16 +174,16 @@ const Users = () => {
               setSearchParams({ activity: tab.id });
               setPage(1);
             }}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center space-x-1.5 ${
               activity === tab.id
-                ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/25'
+                ? isDark ? 'bg-white text-slate-950' : 'bg-slate-900 text-white'
                 : tab.highlight
                 ? isDark
-                  ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/20'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/20'
                   : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
                 : isDark
                 ? 'bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800'
-                : 'bg-white hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 shadow-sm'
+                : 'bg-white hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200'
             }`}
           >
             <span>{tab.label}</span>
@@ -192,91 +191,90 @@ const Users = () => {
         ))}
       </div>
 
-      {/* Search and Secondary Filter Controls */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-        {/* Search Input */}
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by artisan name, mobile number or email..."
-            className={`w-full pl-10 pr-4 py-2 rounded-xl text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors border ${inputBg}`}
-          />
+      {/* Unified Data Explorer Card */}
+      <div className={`rounded-xl border overflow-hidden transition-colors ${cardBg}`}>
+        {/* Integrated Search and Secondary Filter Toolbar */}
+        <div className={`p-3.5 border-b flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between ${
+          isDark ? 'bg-slate-950/40 border-slate-800/80' : 'bg-slate-50/70 border-slate-200'
+        }`}>
+          <div className="relative flex-1 max-w-md">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search name, mobile, or email..."
+              className={`w-full pl-9 pr-3.5 py-1.5 rounded-lg text-xs sm:text-sm focus:outline-none transition-colors border ${inputBg}`}
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={appMode}
+              onChange={(e) => {
+                setAppMode(e.target.value);
+                setPage(1);
+              }}
+              className={`px-2.5 py-1.5 rounded-lg text-xs font-medium focus:outline-none border ${inputBg}`}
+            >
+              <option value="all">App Mode: All</option>
+              <option value="advance">Advance Mode</option>
+              <option value="simple">Simple Mode</option>
+            </select>
+
+            <select
+              value={language}
+              onChange={(e) => {
+                setLanguage(e.target.value);
+                setPage(1);
+              }}
+              className={`px-2.5 py-1.5 rounded-lg text-xs font-medium focus:outline-none border ${inputBg}`}
+            >
+              <option value="all">Language: All</option>
+              <option value="gu">ગુજરાતી (Gujarati)</option>
+              <option value="en">English</option>
+            </select>
+
+            <select
+              value={status}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                setPage(1);
+              }}
+              className={`px-2.5 py-1.5 rounded-lg text-xs font-medium focus:outline-none border ${inputBg}`}
+            >
+              <option value="all">Status: All</option>
+              <option value="active">Active</option>
+              <option value="suspended">Suspended</option>
+            </select>
+          </div>
         </div>
 
-        {/* Dropdown Filters */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* App Mode filter */}
-          <select
-            value={appMode}
-            onChange={(e) => {
-              setAppMode(e.target.value);
-              setPage(1);
-            }}
-            className={`px-3 py-2 rounded-xl text-xs font-medium focus:outline-none focus:border-cyan-500 border ${inputBg}`}
-          >
-            <option value="all">App Mode: All</option>
-            <option value="advance">⚡ Advance Mode</option>
-            <option value="simple">Simple Mode</option>
-          </select>
-
-          {/* Language filter */}
-          <select
-            value={language}
-            onChange={(e) => {
-              setLanguage(e.target.value);
-              setPage(1);
-            }}
-            className={`px-3 py-2 rounded-xl text-xs font-medium focus:outline-none focus:border-cyan-500 border ${inputBg}`}
-          >
-            <option value="all">Language: All</option>
-            <option value="gu">ગુજરાતી (Gujarati)</option>
-            <option value="en">English</option>
-          </select>
-
-          {/* Status filter */}
-          <select
-            value={status}
-            onChange={(e) => {
-              setStatus(e.target.value);
-              setPage(1);
-            }}
-            className={`px-3 py-2 rounded-xl text-xs font-medium focus:outline-none focus:border-cyan-500 border ${inputBg}`}
-          >
-            <option value="all">Status: All</option>
-            <option value="active">Active</option>
-            <option value="suspended">Suspended</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Data Table */}
-      <div className={`rounded-2xl border overflow-hidden transition-all ${cardBg}`}>
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center text-slate-400">
-            <div className="w-8 h-8 border-3 border-cyan-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-            <p className="text-xs font-medium">Loading artisans list...</p>
+            <div className={`w-6 h-6 border-2 border-t-transparent rounded-full animate-spin mb-2.5 ${
+              isDark ? 'border-slate-300' : 'border-slate-700'
+            }`}></div>
+            <p className="text-xs font-medium">Loading artisans...</p>
           </div>
         ) : users.length === 0 ? (
           <div className="py-20 text-center text-slate-400">
-            <UsersIcon className="w-10 h-10 mx-auto text-slate-400 mb-2" />
-            <p className="text-sm font-semibold">No artisans found</p>
-            <p className={`text-xs mt-1 ${textMuted}`}>Try adjusting your search or active cohort filter.</p>
+            <UsersIcon className="w-8 h-8 mx-auto text-slate-400 mb-2 opacity-60" />
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-300">No artisans found</p>
+            <p className={`text-xs mt-1 ${textMuted}`}>Adjust your search or active cohort filter.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className={`uppercase tracking-wider text-[10px] border-b ${tableHeaderBg} ${tableBorder}`}>
+              <thead className={`text-[11px] font-medium border-b ${tableHeaderBg} ${tableBorder}`}>
                 <tr>
-                  <th className="py-3.5 px-4">Artisan Profile</th>
-                  <th className="py-3.5 px-4">Joined Date & Tenure</th>
-                  <th className="py-3.5 px-3">App Mode</th>
-                  <th className="py-3.5 px-3">Language</th>
-                  <th className="py-3.5 px-3">Latest Log</th>
-                  <th className="py-3.5 px-3">Status</th>
-                  <th className="py-3.5 px-4 text-center">Action</th>
+                  <th className="py-3 px-4">Artisan</th>
+                  <th className="py-3 px-4">Joined</th>
+                  <th className="py-3 px-3">Mode</th>
+                  <th className="py-3 px-3">Language</th>
+                  <th className="py-3 px-3">Last Log</th>
+                  <th className="py-3 px-3">Status</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className={`divide-y ${tableBorder}`}>
@@ -299,9 +297,8 @@ const Users = () => {
                                 {u.full_name}
                               </p>
                               {isAdvance && (
-                                <span className="inline-flex items-center space-x-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30">
-                                  <Sparkles className="w-2.5 h-2.5" />
-                                  <span>ADVANCE</span>
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                                  ADV
                                 </span>
                               )}
                             </div>
@@ -334,12 +331,12 @@ const Users = () => {
                       {/* App Mode */}
                       <td className="py-3.5 px-3 whitespace-nowrap">
                         {isAdvance ? (
-                          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 shadow-sm shadow-purple-500/10">
-                            <Sparkles className="w-3 h-3 text-purple-500 animate-pulse" />
+                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 border border-indigo-500/25">
+                            <Sparkles className="w-3 h-3 text-indigo-500" />
                             <span>Advance</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20">
                             <span>Simple</span>
                           </span>
                         )}
@@ -376,15 +373,15 @@ const Users = () => {
                       </td>
 
                       {/* Action */}
-                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                      <td className="py-3 px-4 text-right whitespace-nowrap">
                         <div className="inline-flex items-center space-x-1.5">
                           <Link
                             to={`/notifications?userId=${u.id}`}
                             title="Send push notification to this artisan"
-                            className={`inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                            className={`inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors border ${
                               isDark
-                                ? 'bg-slate-800 hover:bg-amber-600 text-slate-300 hover:text-white border-slate-700 hover:border-amber-500'
-                                : 'bg-slate-100 hover:bg-amber-500 text-slate-700 hover:text-white border-slate-200 hover:border-amber-500 shadow-sm'
+                                ? 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
+                                : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
                             }`}
                           >
                             <Bell className="w-3 h-3" />
@@ -393,13 +390,13 @@ const Users = () => {
 
                           <Link
                             to={`/users/${u.id}`}
-                            className={`inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                            className={`inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
                               isDark
-                                ? 'bg-slate-800 hover:bg-cyan-600 text-slate-300 hover:text-white border-slate-700 hover:border-cyan-500'
-                                : 'bg-slate-100 hover:bg-cyan-600 text-slate-700 hover:text-white border-slate-200 hover:border-cyan-500 shadow-sm'
+                                ? 'bg-white text-slate-950 hover:bg-slate-200'
+                                : 'bg-slate-900 text-white hover:bg-slate-800'
                             }`}
                           >
-                            <span>Inspect</span>
+                            <span>View</span>
                             <ArrowUpRight className="w-3 h-3" />
                           </Link>
                         </div>

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
   LogOut, 
   Gem, 
-  Activity,
   Calendar,
   Sun,
   Moon,
@@ -22,10 +21,22 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import api from '../api/client';
 
+const PAGE_TITLES = {
+  '/': 'Operations Overview',
+  '/users': 'Artisan Directory',
+  '/retention': 'Retention & Cohorts',
+  '/deleted-accounts': 'Deleted Accounts',
+  '/notifications': 'Push Broadcasts',
+  '/splash': 'Festival & Splash',
+  '/faqs': 'Help & FAQs',
+  '/security': 'Security & Access',
+};
+
 const Layout = () => {
   const { admin, logout } = useAuth();
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { toggleTheme, isDark } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -70,26 +81,34 @@ const Layout = () => {
     dateStyle: 'medium'
   }).format(new Date());
 
+  const currentTitle = location.pathname.startsWith('/users/')
+    ? 'Artisan Profile'
+    : PAGE_TITLES[location.pathname] || 'Operations Console';
+
   const sidebarContent = (
     <div className="flex flex-col h-full">
       {/* Brand Header */}
-      <div className={`p-5 border-b flex items-center justify-between ${
-        isDark ? 'border-slate-800' : 'border-slate-200'
+      <div className={`h-14 px-4 border-b flex items-center justify-between shrink-0 ${
+        isDark ? 'border-slate-800/80' : 'border-slate-200'
       }`}>
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center shadow-lg shadow-cyan-500/20 shrink-0">
-            <Gem className="w-5 h-5 text-white" />
+        <div className="flex items-center space-x-2.5">
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+            isDark ? 'bg-white text-slate-950' : 'bg-slate-900 text-white'
+          }`}>
+            <Gem className="w-4 h-4" />
           </div>
-          <div>
+          <div className="leading-none">
             <div className="flex items-center space-x-1.5">
-              <h1 className={`font-bold text-lg tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              <h1 className={`font-semibold text-sm tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 HeeraMate
               </h1>
-              <span className="px-1.5 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
-                Owner
+              <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded border ${
+                isDark ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-100 border-slate-200 text-slate-600'
+              }`}>
+                Admin
               </span>
             </div>
-            <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Diamond Artisan Platform</p>
+            <p className={`text-[11px] mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Artisan Ledger</p>
           </div>
         </div>
 
@@ -103,11 +122,11 @@ const Layout = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
-        <p className={`px-3 pb-2 text-[11px] font-semibold tracking-wider uppercase ${
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        <p className={`px-2.5 pb-2 text-[11px] font-medium ${
           isDark ? 'text-slate-500' : 'text-slate-400'
         }`}>
-          Monitoring & Management
+          Workspace
         </p>
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -118,21 +137,23 @@ const Layout = () => {
               end={item.to === '/'}
               onClick={() => setMobileMenuOpen(false)}
               className={({ isActive }) =>
-                `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                `flex items-center justify-between px-2.5 py-2 rounded-lg text-[13px] font-medium transition-colors ${
                   isActive
-                    ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/25'
+                    ? isDark
+                      ? 'bg-slate-800 text-white'
+                      : 'bg-slate-900 text-white'
                     : isDark
-                    ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                    ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`
               }
             >
-              <div className="flex items-center space-x-3 truncate">
+              <div className="flex items-center space-x-2.5 truncate">
                 <Icon className="w-4 h-4 shrink-0" />
                 <span className="truncate">{item.label}</span>
               </div>
               {item.badge !== undefined && item.badge > 0 && (
-                <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-rose-500/15 text-rose-500 border border-rose-500/25">
+                <span className="px-1.5 py-0.5 text-[10px] font-semibold tabular-nums rounded bg-rose-500/15 text-rose-500">
                   {item.badge}
                 </span>
               )}
@@ -142,15 +163,17 @@ const Layout = () => {
       </nav>
 
       {/* Admin Card & Logout */}
-      <div className={`p-4 border-t ${
-        isDark ? 'border-slate-800 bg-slate-900/60' : 'border-slate-200 bg-slate-50'
+      <div className={`p-3 border-t ${
+        isDark ? 'border-slate-800/80' : 'border-slate-200'
       }`}>
-        <div className="flex items-center space-x-2.5 mb-3 overflow-hidden">
-          <div className="w-8 h-8 rounded-full bg-cyan-600/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 flex items-center justify-center font-bold text-xs shrink-0">
+        <div className="flex items-center space-x-2.5 mb-2.5 px-1 overflow-hidden">
+          <div className={`w-7 h-7 rounded-md flex items-center justify-center font-semibold text-xs shrink-0 ${
+            isDark ? 'bg-slate-800 text-slate-200 border border-slate-700' : 'bg-slate-100 text-slate-700 border border-slate-200'
+          }`}>
             {admin?.full_name ? admin.full_name.charAt(0).toUpperCase() : 'A'}
           </div>
           <div className="truncate">
-            <p className={`text-xs font-semibold truncate ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+            <p className={`text-xs font-medium truncate ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
               {admin?.full_name || 'App Owner'}
             </p>
             <p className={`text-[11px] truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
@@ -160,22 +183,26 @@ const Layout = () => {
         </div>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-xs font-medium text-rose-500 hover:bg-rose-500/10 rounded-xl transition-colors border border-rose-500/20"
+          className={`w-full flex items-center justify-center space-x-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors border ${
+            isDark
+              ? 'border-slate-800 text-slate-400 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10'
+              : 'border-slate-200 text-slate-600 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50'
+          }`}
         >
           <LogOut className="w-3.5 h-3.5" />
-          <span>Sign Out</span>
+          <span>Sign out</span>
         </button>
       </div>
     </div>
   );
 
   return (
-    <div className={`min-h-screen flex font-sans transition-colors duration-200 ${
-      isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+    <div className={`min-h-screen flex transition-colors duration-150 ${
+      isDark ? 'bg-[#0a0d14] text-slate-100' : 'bg-[#f4f5f7] text-slate-900'
     }`}>
       {/* Desktop Sidebar */}
-      <aside className={`hidden md:flex w-64 border-r shrink-0 flex-col sticky top-0 h-screen ${
-        isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+      <aside className={`hidden md:flex w-60 border-r shrink-0 flex-col sticky top-0 h-screen ${
+        isDark ? 'bg-[#0e131d] border-slate-800/80' : 'bg-white border-slate-200'
       }`}>
         {sidebarContent}
       </aside>
@@ -183,15 +210,12 @@ const Layout = () => {
       {/* Mobile Drawer Backdrop & Sidebar */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex">
-          {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-black/50 transition-opacity"
             onClick={() => setMobileMenuOpen(false)}
           />
-
-          {/* Drawer Menu */}
-          <div className={`relative w-72 max-w-[80vw] h-full shadow-2xl flex flex-col z-10 ${
-            isDark ? 'bg-slate-900' : 'bg-white'
+          <div className={`relative w-64 max-w-[80vw] h-full shadow-xl flex flex-col z-10 ${
+            isDark ? 'bg-[#0e131d]' : 'bg-white'
           }`}>
             {sidebarContent}
           </div>
@@ -201,71 +225,62 @@ const Layout = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         {/* Top Header */}
-        <header className={`h-16 px-4 sm:px-8 flex items-center justify-between shrink-0 sticky top-0 z-30 backdrop-blur border-b transition-colors ${
+        <header className={`h-14 px-4 sm:px-6 lg:px-8 flex items-center justify-between shrink-0 sticky top-0 z-30 border-b transition-colors ${
           isDark
-            ? 'bg-slate-900/80 border-slate-800 text-slate-100'
-            : 'bg-white/80 border-slate-200 text-slate-800 shadow-sm'
+            ? 'bg-[#0a0d14]/90 backdrop-blur-md border-slate-800/80 text-slate-100'
+            : 'bg-white/90 backdrop-blur-md border-slate-200 text-slate-900'
         }`}>
           <div className="flex items-center space-x-3">
-            {/* Mobile Hamburger Button */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className={`md:hidden p-2 rounded-xl border transition-colors ${
+              className={`md:hidden p-1.5 rounded-lg border transition-colors ${
                 isDark
                   ? 'border-slate-800 text-slate-300 hover:bg-slate-800'
                   : 'border-slate-200 text-slate-600 hover:bg-slate-100'
               }`}
               aria-label="Toggle Menu"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center space-x-2 text-xs sm:text-sm font-medium">
-              <Activity className="w-4 h-4 text-cyan-500 animate-pulse shrink-0" />
-              <span className="truncate hidden sm:inline">Live User Monitoring & Tracking</span>
-              <span className="sm:hidden font-bold text-cyan-600 dark:text-cyan-400">HeeraMate</span>
-            </div>
+            <span className="text-sm font-semibold tracking-tight truncate">
+              {currentTitle}
+            </span>
           </div>
 
-          <div className="flex items-center space-x-2.5 sm:space-x-4">
+          <div className="flex items-center space-x-2.5">
             {/* Date Badge */}
-            <div className={`hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-full border text-xs ${
+            <div className={`hidden sm:flex items-center space-x-1.5 px-2.5 py-1 rounded-md border text-xs tabular-nums ${
               isDark
-                ? 'bg-slate-800/80 border-slate-700 text-slate-300'
-                : 'bg-slate-100 border-slate-200 text-slate-700'
+                ? 'bg-slate-900 border-slate-800 text-slate-300'
+                : 'bg-slate-50 border-slate-200 text-slate-600'
             }`}>
               <Calendar className="w-3.5 h-3.5 text-slate-400" />
-              <span>{todayStr} (IST)</span>
+              <span>{todayStr} · IST</span>
             </div>
 
             {/* Dark / Light Mode Toggle Button */}
             <button
               onClick={toggleTheme}
-              className={`p-2 rounded-xl border transition-colors flex items-center space-x-1.5 text-xs font-semibold ${
+              className={`px-2.5 py-1 rounded-md border transition-colors flex items-center space-x-1.5 text-xs font-medium ${
                 isDark
-                  ? 'bg-slate-800 border-slate-700 text-amber-400 hover:bg-slate-700'
-                  : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
+                  ? 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
+                  : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
               }`}
               title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
             >
               {isDark ? (
                 <>
-                  <Sun className="w-4 h-4 text-amber-400" />
-                  <span className="hidden lg:inline text-slate-200">Light</span>
+                  <Sun className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="hidden lg:inline">Light</span>
                 </>
               ) : (
                 <>
-                  <Moon className="w-4 h-4 text-slate-600" />
-                  <span className="hidden lg:inline text-slate-700">Dark</span>
+                  <Moon className="w-3.5 h-3.5 text-slate-600" />
+                  <span className="hidden lg:inline">Dark</span>
                 </>
               )}
             </button>
-
-            {/* Status indicator */}
-            <div className="flex items-center space-x-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-              <span className="hidden xs:inline">Live</span>
-            </div>
           </div>
         </header>
 

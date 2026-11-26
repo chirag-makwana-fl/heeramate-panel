@@ -173,155 +173,123 @@ const Faqs = () => {
 
   // Theming classes
   const cardBg = isDark 
-    ? 'bg-slate-900 border-slate-800 text-slate-100' 
-    : 'bg-white border-slate-200 text-slate-800 shadow-sm';
+    ? 'bg-[#0e131d] border-slate-800/80 text-slate-100' 
+    : 'bg-white border-slate-200 text-slate-900';
   const textMuted = isDark ? 'text-slate-400' : 'text-slate-500';
   const inputBg = isDark 
-    ? 'bg-slate-950 border-slate-800 text-white placeholder-slate-500 focus:border-cyan-500' 
-    : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-cyan-600';
+    ? 'bg-slate-900 border-slate-800 text-white placeholder-slate-500 focus:border-slate-600' 
+    : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-slate-400';
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+    <div className="space-y-5 max-w-7xl mx-auto pb-12">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <div className="flex items-center space-x-2">
-            <HelpCircle className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
-            <h1 className={`text-2xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Help & FAQs
-            </h1>
-          </div>
-          <p className={`text-xs sm:text-sm mt-1 ${textMuted}`}>
-            Manage bilingual knowledge base entries (English & ગુજરાતી) displayed in the artisan mobile app.
+          <h1 className={`text-xl font-semibold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            Help & FAQs
+          </h1>
+          <p className={`text-xs mt-0.5 ${textMuted}`}>
+            Manage bilingual knowledge base entries (English & ગુજરાતી) shown in the mobile app.
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2">
           <button
             onClick={fetchFaqs}
             disabled={loading}
-            className={`p-2.5 rounded-xl border transition-colors flex items-center justify-center ${
-              isDark ? 'border-slate-800 hover:bg-slate-800 text-slate-300' : 'border-slate-200 hover:bg-slate-100 text-slate-600'
+            className={`p-2 rounded-lg border transition-colors flex items-center justify-center ${
+              isDark ? 'border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
             }`}
             title="Refresh FAQs"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-cyan-500' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
 
           <button
             onClick={handleOpenAddModal}
-            className="flex items-center space-x-2 px-4 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-medium text-xs sm:text-sm rounded-xl shadow-lg shadow-cyan-600/25 transition-all active:scale-[0.98]"
+            className={`flex items-center space-x-1.5 px-3.5 py-2 font-medium text-xs rounded-lg transition-colors ${
+              isDark
+                ? 'bg-white text-slate-950 hover:bg-slate-200'
+                : 'bg-slate-900 text-white hover:bg-slate-800'
+            }`}
           >
-            <Plus className="w-4 h-4" />
-            <span>Add New FAQ</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add FAQ</span>
           </button>
         </div>
       </div>
 
-      {/* Metrics Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className={`p-4 rounded-2xl border ${cardBg}`}>
-          <div className="flex items-center justify-between">
-            <span className={`text-xs font-medium ${textMuted}`}>Total FAQs</span>
-            <FileQuestion className="w-4 h-4 text-cyan-500" />
+      {/* 12-Column Knowledge Base Split */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Main Stage (8 Cols): Search/Filter + FAQ Accordion */}
+        <div className="lg:col-span-8 space-y-4">
+          {/* Alert banner */}
+          {feedback && (
+            <div className={`p-3.5 rounded-xl border flex items-center justify-between transition-colors ${
+              feedback.success 
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400' 
+                : 'bg-rose-500/10 border-rose-500/30 text-rose-500'
+            }`}>
+              <div className="flex items-center space-x-2 text-xs font-medium">
+                {feedback.success ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+                <span>{feedback.message}</span>
+              </div>
+              <button onClick={() => setFeedback(null)} className="text-xs underline hover:opacity-80">
+                Dismiss
+              </button>
+            </div>
+          )}
+
+          {/* Filter and Search Bar */}
+          <div className={`p-3.5 rounded-xl border flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between ${cardBg}`}>
+            <div className="relative flex-1">
+              <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${textMuted}`}/>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search FAQs in English or ગુજરાતી..."
+                className={`w-full pl-9 pr-4 py-1.5 rounded-lg text-xs sm:text-sm border transition-colors outline-none ${inputBg}`}
+              />
+            </div>
+
+            <div className={`flex items-center space-x-1 shrink-0 p-0.5 rounded-lg border text-xs font-medium ${
+              isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-200'
+            }`}>
+              <button
+                onClick={() => setStatusFilter('all')}
+                className={`px-2.5 py-1 rounded-md transition-colors ${
+                  statusFilter === 'all'
+                    ? isDark ? 'bg-slate-800 text-white' : 'bg-white text-slate-900 shadow-xs'
+                    : textMuted
+                }`}
+              >
+                All ({faqs.length})
+              </button>
+              <button
+                onClick={() => setStatusFilter('active')}
+                className={`px-2.5 py-1 rounded-md transition-colors ${
+                  statusFilter === 'active'
+                    ? isDark ? 'bg-slate-800 text-white' : 'bg-white text-slate-900 shadow-xs'
+                    : textMuted
+                }`}
+              >
+                Active ({activeCount})
+              </button>
+              <button
+                onClick={() => setStatusFilter('inactive')}
+                className={`px-2.5 py-1 rounded-md transition-colors ${
+                  statusFilter === 'inactive'
+                    ? isDark ? 'bg-slate-800 text-white' : 'bg-white text-slate-900 shadow-xs'
+                    : textMuted
+                }`}
+              >
+                Hidden ({inactiveCount})
+              </button>
+            </div>
           </div>
-          <p className="text-2xl font-bold mt-1">{faqs.length}</p>
-          <span className={`text-[11px] ${textMuted}`}>Knowledge base items</span>
-        </div>
 
-        <div className={`p-4 rounded-2xl border ${cardBg}`}>
-          <div className="flex items-center justify-between">
-            <span className={`text-xs font-medium ${textMuted}`}>Active in App</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-          </div>
-          <p className="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">{activeCount}</p>
-          <span className={`text-[11px] ${textMuted}`}>Live for diamond artisans</span>
-        </div>
-
-        <div className={`p-4 rounded-2xl border ${cardBg}`}>
-          <div className="flex items-center justify-between">
-            <span className={`text-xs font-medium ${textMuted}`}>Hidden / Draft</span>
-            <EyeOff className="w-4 h-4 text-slate-400" />
-          </div>
-          <p className="text-2xl font-bold mt-1 text-slate-500">{inactiveCount}</p>
-          <span className={`text-[11px] ${textMuted}`}>Not visible in app</span>
-        </div>
-
-        <div className={`p-4 rounded-2xl border ${cardBg}`}>
-          <div className="flex items-center justify-between">
-            <span className={`text-xs font-medium ${textMuted}`}>Languages</span>
-            <Globe2 className="w-4 h-4 text-cyan-500" />
-          </div>
-          <p className="text-base font-bold mt-1 text-cyan-600 dark:text-cyan-400">English & ગુજરાતી</p>
-          <span className={`text-[11px] ${textMuted}`}>100% Bilingual coverage</span>
-        </div>
-      </div>
-
-      {/* Alert banner */}
-      {feedback && (
-        <div className={`p-4 rounded-xl border flex items-center justify-between transition-all ${
-          feedback.success 
-            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400' 
-            : 'bg-rose-500/10 border-rose-500/30 text-rose-500'
-        }`}>
-          <div className="flex items-center space-x-2 text-xs sm:text-sm font-medium">
-            {feedback.success ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
-            <span>{feedback.message}</span>
-          </div>
-          <button onClick={() => setFeedback(null)} className="text-xs underline hover:opacity-80">
-            Dismiss
-          </button>
-        </div>
-      )}
-
-      {/* Filter and Search Bar */}
-      <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between ${cardBg}`}>
-        <div className="relative flex-1">
-          <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${textMuted}`}/>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search FAQs in English or ગુજરાતી..."
-            className={`w-full pl-9 pr-4 py-2 rounded-xl text-xs sm:text-sm border transition-colors outline-none ${inputBg}`}
-          />
-        </div>
-
-        <div className="flex items-center space-x-1.5 shrink-0 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-semibold">
-          <button
-            onClick={() => setStatusFilter('all')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              statusFilter === 'all'
-                ? 'bg-cyan-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            All ({faqs.length})
-          </button>
-          <button
-            onClick={() => setStatusFilter('active')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              statusFilter === 'active'
-                ? 'bg-cyan-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            Active ({activeCount})
-          </button>
-          <button
-            onClick={() => setStatusFilter('inactive')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              statusFilter === 'inactive'
-                ? 'bg-cyan-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            Hidden ({inactiveCount})
-          </button>
-        </div>
-      </div>
-
-      {/* FAQs List */}
+          {/* FAQs List */}
       <div className="space-y-3">
         {loading ? (
           <div className={`p-12 text-center rounded-2xl border ${cardBg}`}>
@@ -499,6 +467,45 @@ const Faqs = () => {
             );
           })
         )}
+          </div>
+        </div>
+
+        {/* Right Summary Rail (4 Cols) */}
+        <div className="lg:col-span-4 space-y-5">
+          <div className={`rounded-xl border p-5 space-y-4 ${cardBg}`}>
+            <h2 className="text-sm font-semibold tracking-tight">Knowledge Base</h2>
+            <div className={`divide-y text-xs ${isDark ? 'divide-slate-800/80' : 'divide-slate-200'}`}>
+              <div className="py-2.5 flex items-center justify-between">
+                <span className={textMuted}>Total Entries</span>
+                <span className="font-semibold tabular-nums">{faqs.length}</span>
+              </div>
+              <div className="py-2.5 flex items-center justify-between">
+                <span className={textMuted}>Active in App</span>
+                <span className="font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">{activeCount}</span>
+              </div>
+              <div className="py-2.5 flex items-center justify-between">
+                <span className={textMuted}>Hidden / Draft</span>
+                <span className="font-semibold text-slate-500 tabular-nums">{inactiveCount}</span>
+              </div>
+              <div className="py-2.5 flex items-center justify-between">
+                <span className={textMuted}>Languages</span>
+                <span className="font-medium">English & ગુજરાતી</span>
+              </div>
+            </div>
+
+            <button
+              onClick={handleOpenAddModal}
+              className={`w-full flex items-center justify-center space-x-1.5 px-3.5 py-2 font-medium text-xs rounded-lg transition-colors ${
+                isDark
+                  ? 'bg-white text-slate-950 hover:bg-slate-200'
+                  : 'bg-slate-900 text-white hover:bg-slate-800'
+              }`}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Create New FAQ</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Add / Edit Modal */}
@@ -641,7 +648,11 @@ const Faqs = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex items-center space-x-2 px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-medium text-xs sm:text-sm rounded-xl shadow-lg shadow-cyan-600/25 transition-all active:scale-[0.98] disabled:opacity-50"
+                  className={`flex items-center space-x-2 px-4 py-2 font-medium text-xs sm:text-sm rounded-lg transition-colors disabled:opacity-50 ${
+                    isDark
+                      ? 'bg-white text-slate-950 hover:bg-slate-200'
+                      : 'bg-slate-900 text-white hover:bg-slate-800'
+                  }`}
                 >
                   {submitting && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
                   <span>{editingFaq ? 'Save Changes' : 'Create FAQ'}</span>

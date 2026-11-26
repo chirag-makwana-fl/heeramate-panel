@@ -1,20 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Users, 
-  Gem, 
-  IndianRupee, 
-  UserCheck, 
-  TrendingUp, 
-  Calendar, 
-  RotateCw, 
+import {
+  Users,
+  Gem,
+  IndianRupee,
+  UserCheck,
+  TrendingUp,
+  RotateCw,
   ArrowUpRight,
   Globe2,
-  Wallet,
   Clock,
   Sparkles,
   UserPlus,
-  Flame,
-  CheckCircle2
+  Smartphone,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
@@ -57,8 +54,8 @@ const Dashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState('users'); // 'diamonds' | 'earnings' | 'users'
-  const [activeUserPeriod, setActiveUserPeriod] = useState('daily'); // 'daily' | 'fifteen_days' | 'monthly'
+  const [activeTab, setActiveTab] = useState('diamonds'); // 'diamonds' | 'earnings' | 'users'
+  const [activeUserPeriod, setActiveUserPeriod] = useState('daily'); // 'daily' | 'weekly' | 'fifteen_days' | 'monthly'
 
   const fetchDashboard = async (isManual = false) => {
     if (isManual) setRefreshing(true);
@@ -82,8 +79,10 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-slate-400">
-        <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-sm font-medium">Loading live platform metrics...</p>
+        <div className={`w-7 h-7 border-2 border-t-transparent rounded-full animate-spin mb-3 ${
+          isDark ? 'border-slate-300' : 'border-slate-700'
+        }`}></div>
+        <p className="text-xs font-medium">Loading operations overview...</p>
       </div>
     );
   }
@@ -102,10 +101,16 @@ const Dashboard = () => {
 
   const currentActiveStats = activeSummary[activeUserPeriod] || activeSummary.daily;
 
-  // Maximum values for charts
+  // Chart calculations
   const maxDiamonds = Math.max(...dailyTrends.map((t) => t.diamonds_tracked), 10);
   const maxEarnings = Math.max(...dailyTrends.map((t) => t.earnings_tracked), 100);
   const maxUsers = Math.max(...dailyTrends.map((t) => t.active_users), 5);
+
+  const periodTotalDiamonds = dailyTrends.reduce((acc, t) => acc + Number(t.diamonds_tracked || 0), 0);
+  const periodTotalEarnings = dailyTrends.reduce((acc, t) => acc + Number(t.earnings_tracked || 0), 0);
+  const avgActiveUsers = dailyTrends.length
+    ? Math.round(dailyTrends.reduce((acc, t) => acc + Number(t.active_users || 0), 0) / dailyTrends.length)
+    : 0;
 
   const guPct = kpi.total_users > 0 ? Math.round((demographics.gujarati_users / kpi.total_users) * 100) : 0;
   const enPct = 100 - guPct;
@@ -114,442 +119,502 @@ const Dashboard = () => {
 
   // Theme helper classes
   const cardBg = isDark
-    ? 'bg-slate-900 border-slate-800 text-slate-100'
-    : 'bg-white border-slate-200 text-slate-800 shadow-sm';
+    ? 'bg-[#0e131d] border-slate-800/80 text-slate-100'
+    : 'bg-white border-slate-200 text-slate-900';
   const textMuted = isDark ? 'text-slate-400' : 'text-slate-500';
-  const tableHeaderBg = isDark ? 'bg-slate-950/70 text-slate-400' : 'bg-slate-100/80 text-slate-600';
-  const tableBorder = isDark ? 'divide-slate-800/70 border-slate-800' : 'divide-slate-200 border-slate-200';
+  const tableHeaderBg = isDark ? 'bg-slate-950/60 text-slate-400' : 'bg-slate-50 text-slate-500';
+  const tableBorder = isDark ? 'divide-slate-800/70 border-slate-800/80' : 'divide-slate-200 border-slate-200';
+  const dividerColor = isDark ? 'border-slate-800/80' : 'border-slate-200';
+
+  const cohortActivitySlug =
+    activeUserPeriod === 'daily'
+      ? 'active_today'
+      : activeUserPeriod === 'weekly'
+      ? 'active_7d'
+      : activeUserPeriod === 'fifteen_days'
+      ? 'active_15d'
+      : 'active_monthly';
 
   return (
-    <div className="space-y-6 sm:space-y-8 max-w-7xl mx-auto">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+      {/* Header Row */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className={`text-2xl font-bold tracking-tight flex items-center space-x-2.5 ${
+          <h1 className={`text-xl font-semibold tracking-tight ${
             isDark ? 'text-white' : 'text-slate-900'
           }`}>
-            <span>Artisan Activity & Monitoring</span>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              Live
-            </span>
+            Operations Overview
           </h1>
-          <p className={`text-xs sm:text-sm mt-1 ${textMuted}`}>
-            Real-time tracking of diamond polishing logs, active karigar cohorts, and earnings.
+          <p className={`text-xs mt-0.5 ${textMuted}`}>
+            Today’s production metrics, 14-day activity trends, and recent artisan logs.
           </p>
         </div>
 
         <button
           onClick={() => fetchDashboard(true)}
           disabled={refreshing}
-          className={`inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-medium rounded-xl border transition-colors disabled:opacity-50 self-start sm:self-auto ${
+          className={`inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors disabled:opacity-50 self-start sm:self-auto ${
             isDark
-              ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
-              : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200 shadow-sm'
+              ? 'bg-slate-900 hover:bg-slate-800 text-slate-200 border-slate-800'
+              : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
           }`}
         >
-          <RotateCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-cyan-500' : ''}`} />
-          <span>{refreshing ? 'Updating...' : 'Refresh Metrics'}</span>
+          <RotateCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+          <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
         </button>
       </div>
 
-      {/* NEW: Dedicated Active Users Multi-Period Widget */}
-      <div className={`rounded-2xl border p-5 sm:p-6 transition-all ${cardBg}`}>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b pb-4 border-inherit">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center text-white shadow-md shadow-cyan-500/20 shrink-0">
-              <Flame className="w-5 h-5 text-amber-300 animate-bounce" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold tracking-tight flex items-center space-x-2">
-                <span>Active Artisans Cohort</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-semibold border border-cyan-500/20">
-                  Real Activity
-                </span>
-              </h2>
-              <p className={`text-xs ${textMuted}`}>
-                Artisans who recorded diamond work in the selected time window.
-              </p>
-            </div>
-          </div>
-
-          {/* Timeframe Switcher Tabs */}
-          <div className={`inline-flex p-1 rounded-xl border self-start sm:self-auto text-xs font-semibold ${
-            isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-200'
-          }`}>
-            <button
-              onClick={() => setActiveUserPeriod('daily')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                activeUserPeriod === 'daily'
-                  ? 'bg-cyan-600 text-white shadow-sm'
-                  : textMuted
-              }`}
-            >
-              Daily (Today)
-            </button>
-            <button
-              onClick={() => setActiveUserPeriod('weekly')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                activeUserPeriod === 'weekly'
-                  ? 'bg-cyan-600 text-white shadow-sm'
-                  : textMuted
-              }`}
-            >
-              Week (7 Days)
-            </button>
-            <button
-              onClick={() => setActiveUserPeriod('fifteen_days')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                activeUserPeriod === 'fifteen_days'
-                  ? 'bg-cyan-600 text-white shadow-sm'
-                  : textMuted
-              }`}
-            >
-              15 Days
-            </button>
-            <button
-              onClick={() => setActiveUserPeriod('monthly')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                activeUserPeriod === 'monthly'
-                  ? 'bg-cyan-600 text-white shadow-sm'
-                  : textMuted
-              }`}
-            >
-              Monthly (30 Days)
-            </button>
-          </div>
-        </div>
-
-        {/* Active Stats Metric Row */}
-        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Active Karigars */}
-          <div className={`p-4 rounded-xl border ${
-            isDark ? 'bg-slate-950/60 border-slate-800/80' : 'bg-slate-50 border-slate-200'
-          }`}>
-            <span className={`text-[11px] font-semibold uppercase tracking-wider ${textMuted}`}>
-              Active Karigars ({activeUserPeriod === 'daily' ? 'Today' : activeUserPeriod === 'weekly' ? '7d' : activeUserPeriod === 'fifteen_days' ? '15d' : '30d'})
-            </span>
-            <div className="flex items-baseline space-x-2 mt-1.5">
-              <span className="text-3xl font-extrabold text-cyan-600 dark:text-cyan-400">
-                {currentActiveStats.active_users}
-              </span>
-              <span className={`text-xs ${textMuted}`}>
-                / {kpi.total_users} artisans
-              </span>
-            </div>
-            {/* Progress percentage bar */}
-            <div className="mt-2.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
-              <div
-                className="bg-gradient-to-r from-cyan-500 to-blue-500 h-1.5 rounded-full transition-all duration-500"
-                style={{ width: `${currentActiveStats.percentage}%` }}
-              />
-            </div>
-            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1.5 font-medium">
-              {currentActiveStats.percentage}% active engagement rate
-            </p>
-          </div>
-
-          {/* Diamonds Tracked in Period */}
-          <div className={`p-4 rounded-xl border ${
-            isDark ? 'bg-slate-950/60 border-slate-800/80' : 'bg-slate-50 border-slate-200'
-          }`}>
-            <span className={`text-[11px] font-semibold uppercase tracking-wider ${textMuted}`}>
-              Diamonds Polished
-            </span>
-            <div className="flex items-baseline space-x-1.5 mt-1.5">
-              <span className="text-3xl font-extrabold">
-                {Number(currentActiveStats.diamonds).toLocaleString('en-IN')}
-              </span>
-              <span className={`text-xs ${textMuted}`}>pieces</span>
-            </div>
-            <p className={`text-[11px] mt-1.5 ${textMuted}`}>
-              Total piece-rate work submitted
-            </p>
-          </div>
-
-          {/* Wages Generated in Period */}
-          <div className={`p-4 rounded-xl border ${
-            isDark ? 'bg-slate-950/60 border-slate-800/80' : 'bg-slate-50 border-slate-200'
-          }`}>
-            <span className={`text-[11px] font-semibold uppercase tracking-wider ${textMuted}`}>
-              Artisan Wages
-            </span>
-            <div className="flex items-baseline space-x-1 mt-1.5">
-              <span className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
-                ₹{Number(currentActiveStats.earnings).toLocaleString('en-IN')}
-              </span>
-            </div>
-            <p className={`text-[11px] mt-1.5 ${textMuted}`}>
-              Calculated automatically from rates
-            </p>
-          </div>
-
-          {/* Quick Filter Link */}
-          <div className={`p-4 rounded-xl border flex flex-col justify-between ${
-            isDark ? 'bg-slate-950/60 border-slate-800/80' : 'bg-slate-50 border-slate-200'
-          }`}>
-            <div>
-              <span className={`text-[11px] font-semibold uppercase tracking-wider ${textMuted}`}>
-                Cohort Directory
-              </span>
-              <p className="text-xs mt-1 font-medium">
-                View all artisans in this active cohort with full profiles.
-              </p>
-            </div>
-            <Link
-              to={`/users?activity=${
-                activeUserPeriod === 'daily'
-                  ? 'active_today'
-                  : activeUserPeriod === 'weekly'
-                  ? 'active_7d'
-                  : activeUserPeriod === 'fifteen_days'
-                  ? 'active_15d'
-                  : 'active_monthly'
-              }`}
-              className="mt-3 inline-flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow-md shadow-cyan-600/20 transition-all"
-            >
-              <span>Explore Active List</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Primary KPI Grid (Today Focus) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Active Loggers Today */}
-        <div className={`rounded-2xl border p-5 relative overflow-hidden transition-all ${cardBg}`}>
+      {/* Top Unified KPI Ribbon */}
+      <div className={`rounded-xl border grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x overflow-hidden ${cardBg} ${
+        isDark ? 'divide-slate-800/80' : 'divide-slate-200'
+      }`}>
+        <div className="p-4 sm:p-5">
           <div className="flex items-center justify-between">
-            <span className={`text-xs font-semibold uppercase tracking-wider ${textMuted}`}>Active Today</span>
-            <div className="w-9 h-9 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center border border-cyan-500/20">
-              <UserCheck className="w-5 h-5" />
-            </div>
+            <span className={`text-xs font-medium ${textMuted}`}>Active Today</span>
+            <UserCheck className="w-4 h-4 text-slate-400" />
           </div>
-          <div className="mt-3">
-            <div className="text-3xl font-extrabold tracking-tight">
+          <div className="mt-2 flex items-baseline space-x-2">
+            <span className="text-2xl font-semibold tracking-tight tabular-nums">
               {kpi.active_loggers_today}
-            </div>
-            <p className={`text-xs mt-1 ${textMuted}`}>
-              out of <span className="font-bold">{kpi.total_users}</span> registered artisans
-            </p>
+            </span>
+            <span className={`text-xs tabular-nums ${textMuted}`}>
+              / {kpi.total_users}
+            </span>
           </div>
+          <p className={`text-[11px] mt-1 ${textMuted}`}>
+            artisans logged today
+          </p>
         </div>
 
-        {/* Diamonds Tracked Today */}
-        <div className={`rounded-2xl border p-5 relative overflow-hidden transition-all ${cardBg}`}>
+        <div className="p-4 sm:p-5">
           <div className="flex items-center justify-between">
-            <span className={`text-xs font-semibold uppercase tracking-wider ${textMuted}`}>Diamonds Today</span>
-            <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-500/20">
-              <Gem className="w-5 h-5" />
-            </div>
+            <span className={`text-xs font-medium ${textMuted}`}>Diamonds Today</span>
+            <Gem className="w-4 h-4 text-slate-400" />
           </div>
-          <div className="mt-3">
-            <div className="text-3xl font-extrabold tracking-tight">
+          <div className="mt-2">
+            <span className="text-2xl font-semibold tracking-tight tabular-nums">
               {Number(kpi.diamonds_today).toLocaleString('en-IN')}
-            </div>
-            <p className={`text-xs mt-1 ${textMuted}`}>
-              polishing pieces recorded today
-            </p>
+            </span>
           </div>
+          <p className={`text-[11px] mt-1 ${textMuted}`}>
+            pieces polished today
+          </p>
         </div>
 
-        {/* Earnings Tracked Today */}
-        <div className={`rounded-2xl border p-5 relative overflow-hidden transition-all ${cardBg}`}>
+        <div className="p-4 sm:p-5">
           <div className="flex items-center justify-between">
-            <span className={`text-xs font-semibold uppercase tracking-wider ${textMuted}`}>Earnings Today</span>
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
-              <IndianRupee className="w-5 h-5" />
-            </div>
+            <span className={`text-xs font-medium ${textMuted}`}>Wages Today</span>
+            <IndianRupee className="w-4 h-4 text-emerald-500" />
           </div>
-          <div className="mt-3">
-            <div className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">
+          <div className="mt-2">
+            <span className="text-2xl font-semibold tracking-tight text-emerald-600 dark:text-emerald-400 tabular-nums">
               ₹{Number(kpi.earnings_today).toLocaleString('en-IN')}
-            </div>
-            <p className={`text-xs mt-1 ${textMuted}`}>
-              total artisan wages calculated
-            </p>
+            </span>
           </div>
+          <p className={`text-[11px] mt-1 ${textMuted}`}>
+            calculated from rates
+          </p>
         </div>
 
-        {/* Registered Artisans */}
-        <div className={`rounded-2xl border p-5 relative overflow-hidden transition-all ${cardBg}`}>
+        <div className="p-4 sm:p-5">
           <div className="flex items-center justify-between">
-            <span className={`text-xs font-semibold uppercase tracking-wider ${textMuted}`}>Total Artisans</span>
-            <div className="w-9 h-9 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center border border-violet-500/20">
-              <Users className="w-5 h-5" />
-            </div>
+            <span className={`text-xs font-medium ${textMuted}`}>Total Artisans</span>
+            <Users className="w-4 h-4 text-slate-400" />
           </div>
-          <div className="mt-3">
-            <div className="text-3xl font-extrabold tracking-tight">
+          <div className="mt-2 flex items-baseline space-x-2">
+            <span className="text-2xl font-semibold tracking-tight tabular-nums">
               {kpi.total_users}
-            </div>
-            <p className="text-xs mt-1 text-emerald-600 dark:text-emerald-400 font-semibold">
-              +{kpi.new_users_today} joined today
-            </p>
+            </span>
+            {kpi.new_users_today > 0 && (
+              <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 tabular-nums">
+                +{kpi.new_users_today} today
+              </span>
+            )}
           </div>
+          <p className={`text-[11px] mt-1 ${textMuted}`}>
+            registered on platform
+          </p>
         </div>
       </div>
 
-      {/* 14-Day Activity Trend Visualizer */}
-      <div className={`rounded-2xl border p-5 sm:p-6 transition-all ${cardBg}`}>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <div>
-            <h2 className="text-base font-semibold tracking-tight flex items-center space-x-2">
-              <TrendingUp className="w-4 h-4 text-cyan-500" />
-              <span>14-Day Daily Work Tracking Activity</span>
-            </h2>
-            <p className={`text-xs mt-0.5 ${textMuted}`}>
-              Daily consistency of diamond artisans logging piece-work.
-            </p>
-          </div>
-
-          <div className={`inline-flex p-1 rounded-xl border text-xs font-medium ${
-            isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-200'
-          }`}>
-            <button
-              onClick={() => setActiveTab('diamonds')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                activeTab === 'diamonds'
-                  ? 'bg-cyan-600 text-white shadow-sm'
-                  : textMuted
-              }`}
-            >
-              Diamonds Tracked
-            </button>
-            <button
-              onClick={() => setActiveTab('earnings')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                activeTab === 'earnings'
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : textMuted
-              }`}
-            >
-              Earnings (₹)
-            </button>
-            <button
-              onClick={() => setActiveTab('users')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                activeTab === 'users'
-                  ? 'bg-violet-600 text-white shadow-sm'
-                  : textMuted
-              }`}
-            >
-              Active Karigars
-            </button>
-          </div>
-        </div>
-
-        {/* Chart Bars with ample headroom and edge-aware tooltips */}
-        <div className="pt-14 px-3 sm:px-4 overflow-x-auto overflow-y-visible">
-          <div className={`h-52 flex items-end gap-2 sm:gap-3 min-w-[500px] border-b pb-2 relative ${
-            isDark ? 'border-slate-800' : 'border-slate-200'
-          }`}>
-            {dailyTrends.map((t, idx) => {
-              let value = 0;
-              let max = 1;
-              let colorClass = 'bg-cyan-500';
-
-              if (activeTab === 'diamonds') {
-                value = t.diamonds_tracked;
-                max = maxDiamonds;
-                colorClass = 'bg-gradient-to-t from-cyan-600 to-cyan-400';
-              } else if (activeTab === 'earnings') {
-                value = t.earnings_tracked;
-                max = maxEarnings;
-                colorClass = 'bg-gradient-to-t from-emerald-600 to-emerald-400';
-              } else {
-                value = t.active_users;
-                max = maxUsers;
-                colorClass = 'bg-gradient-to-t from-violet-600 to-violet-400';
-              }
-
-              // Keep bars max 78% height so hover tooltip has 22% guaranteed headroom above
-              const heightPct = Math.max(8, Math.min(78, Math.round((value / max) * 78)));
-
-              // Calculate edge alignment to prevent first & last tooltips from getting cut off
-              let tooltipAlignClass = 'left-1/2 -translate-x-1/2';
-              let arrowAlignClass = 'left-1/2 -translate-x-1/2';
-
-              if (idx === 0) {
-                // First bar: align left to prevent clipping on left edge
-                tooltipAlignClass = 'left-0 translate-x-0';
-                arrowAlignClass = 'left-4 translate-x-0';
-              } else if (idx === 1) {
-                tooltipAlignClass = 'left-[-4px] sm:left-1/2 sm:-translate-x-1/2';
-                arrowAlignClass = 'left-6 sm:left-1/2 sm:-translate-x-1/2';
-              } else if (idx === dailyTrends.length - 1) {
-                // Last bar: align right to prevent clipping on right edge
-                tooltipAlignClass = 'right-0 left-auto translate-x-0';
-                arrowAlignClass = 'right-4 left-auto translate-x-0';
-              } else if (idx === dailyTrends.length - 2) {
-                tooltipAlignClass = 'right-[-4px] left-auto sm:left-1/2 sm:-translate-x-1/2';
-                arrowAlignClass = 'right-6 left-auto sm:left-1/2 sm:-translate-x-1/2';
-              }
-
-              return (
-                <div key={t.date} className="flex-1 flex flex-col items-center group relative h-full justify-end cursor-pointer">
-                  {/* Floating Tooltip with edge-aware alignment, arrow, border, and solid background */}
-                  <div className={`absolute opacity-0 group-hover:opacity-100 transition-all duration-150 transform -translate-y-2 group-hover:translate-y-0 border text-[11px] px-3 py-2 rounded-xl shadow-2xl pointer-events-none whitespace-nowrap z-30 ${tooltipAlignClass} ${
-                    isDark
-                      ? 'bg-slate-900 border-slate-700 text-white shadow-slate-950/90'
-                      : 'bg-white border-slate-200 text-slate-900 shadow-slate-300/80 ring-1 ring-black/5'
-                  }`}
-                  style={{ bottom: `calc(${heightPct}% + 12px)` }}
-                  >
-                    <p className="font-bold text-[11px]">{t.date}</p>
-                    <p className={`font-extrabold mt-0.5 ${
-                      activeTab === 'earnings' ? 'text-emerald-500' : activeTab === 'users' ? 'text-violet-500' : 'text-cyan-500'
-                    }`}>
-                      {activeTab === 'earnings'
-                        ? `₹${value.toLocaleString('en-IN')}`
-                        : `${value.toLocaleString('en-IN')} ${activeTab === 'users' ? 'Active Karigars' : 'Diamonds Tracked'}`}
-                    </p>
-                    {/* Tooltip arrow dynamically aligned with the bar */}
-                    <div className={`absolute top-full w-0 h-0 border-x-4 border-x-transparent border-t-4 ${arrowAlignClass} ${
-                      isDark ? 'border-t-slate-900' : 'border-t-white'
-                    }`} />
-                  </div>
-
-                  {/* Bar */}
-                  <div
-                    className={`w-full rounded-t-lg ${colorClass} transition-all duration-300 group-hover:brightness-110 group-hover:shadow-lg group-hover:shadow-cyan-500/20`}
-                    style={{ height: `${heightPct}%` }}
-                  />
+      {/* Main 12-Column Asymmetric Workspace */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Main Stage (8 Columns): 14-Day Chart + Recent Work Logs */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* 14-Day Activity Visualizer */}
+          <div className={`rounded-xl border p-5 transition-colors ${cardBg}`}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <TrendingUp className="w-4 h-4 text-slate-400" />
+                  <h2 className="text-sm font-semibold tracking-tight">
+                    14-Day Production Trend
+                  </h2>
                 </div>
-              );
-            })}
+                <p className={`text-xs mt-0.5 tabular-nums ${textMuted}`}>
+                  {activeTab === 'diamonds' && `${periodTotalDiamonds.toLocaleString('en-IN')} total diamonds over 14 days`}
+                  {activeTab === 'earnings' && `₹${periodTotalEarnings.toLocaleString('en-IN')} total wages over 14 days`}
+                  {activeTab === 'users' && `${avgActiveUsers} avg active artisans per day`}
+                </p>
+              </div>
+
+              <div className={`inline-flex p-0.5 rounded-lg border text-xs font-medium self-start sm:self-auto ${
+                isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-200'
+              }`}>
+                <button
+                  onClick={() => setActiveTab('diamonds')}
+                  className={`px-2.5 py-1 rounded-md transition-colors ${
+                    activeTab === 'diamonds'
+                      ? isDark ? 'bg-slate-800 text-white' : 'bg-white text-slate-900 shadow-xs'
+                      : textMuted
+                  }`}
+                >
+                  Diamonds
+                </button>
+                <button
+                  onClick={() => setActiveTab('earnings')}
+                  className={`px-2.5 py-1 rounded-md transition-colors ${
+                    activeTab === 'earnings'
+                      ? isDark ? 'bg-slate-800 text-white' : 'bg-white text-slate-900 shadow-xs'
+                      : textMuted
+                  }`}
+                >
+                  Wages (₹)
+                </button>
+                <button
+                  onClick={() => setActiveTab('users')}
+                  className={`px-2.5 py-1 rounded-md transition-colors ${
+                    activeTab === 'users'
+                      ? isDark ? 'bg-slate-800 text-white' : 'bg-white text-slate-900 shadow-xs'
+                      : textMuted
+                  }`}
+                >
+                  Karigars
+                </button>
+              </div>
+            </div>
+
+            {/* Chart Area */}
+            <div className="pt-12 px-1 overflow-x-auto overflow-y-visible">
+              <div className={`h-48 flex items-end gap-1.5 sm:gap-2.5 min-w-[460px] border-b pb-2 relative ${dividerColor}`}>
+                {/* Subtle horizontal guide lines */}
+                <div className={`absolute inset-x-0 top-1/4 border-t border-dashed pointer-events-none ${isDark ? 'border-slate-800/60' : 'border-slate-200/80'}`} />
+                <div className={`absolute inset-x-0 top-2/4 border-t border-dashed pointer-events-none ${isDark ? 'border-slate-800/60' : 'border-slate-200/80'}`} />
+                <div className={`absolute inset-x-0 top-3/4 border-t border-dashed pointer-events-none ${isDark ? 'border-slate-800/60' : 'border-slate-200/80'}`} />
+
+                {dailyTrends.map((t, idx) => {
+                  let value = 0;
+                  let max = 1;
+                  let colorClass = isDark ? 'bg-sky-500' : 'bg-slate-800';
+
+                  if (activeTab === 'diamonds') {
+                    value = t.diamonds_tracked;
+                    max = maxDiamonds;
+                    colorClass = isDark ? 'bg-sky-500' : 'bg-slate-800';
+                  } else if (activeTab === 'earnings') {
+                    value = t.earnings_tracked;
+                    max = maxEarnings;
+                    colorClass = 'bg-emerald-600 dark:bg-emerald-500';
+                  } else {
+                    value = t.active_users;
+                    max = maxUsers;
+                    colorClass = 'bg-indigo-600 dark:bg-indigo-500';
+                  }
+
+                  const heightPct = Math.max(6, Math.min(82, Math.round((value / max) * 82)));
+
+                  let tooltipAlignClass = 'left-1/2 -translate-x-1/2';
+                  let arrowAlignClass = 'left-1/2 -translate-x-1/2';
+
+                  if (idx === 0) {
+                    tooltipAlignClass = 'left-0 translate-x-0';
+                    arrowAlignClass = 'left-4 translate-x-0';
+                  } else if (idx === 1) {
+                    tooltipAlignClass = 'left-[-4px] sm:left-1/2 sm:-translate-x-1/2';
+                    arrowAlignClass = 'left-6 sm:left-1/2 sm:-translate-x-1/2';
+                  } else if (idx === dailyTrends.length - 1) {
+                    tooltipAlignClass = 'right-0 left-auto translate-x-0';
+                    arrowAlignClass = 'right-4 left-auto translate-x-0';
+                  } else if (idx === dailyTrends.length - 2) {
+                    tooltipAlignClass = 'right-[-4px] left-auto sm:left-1/2 sm:-translate-x-1/2';
+                    arrowAlignClass = 'right-6 left-auto sm:left-1/2 sm:-translate-x-1/2';
+                  }
+
+                  return (
+                    <div key={t.date} className="flex-1 flex flex-col items-center group relative h-full justify-end cursor-pointer z-10">
+                      <div
+                        className={`absolute opacity-0 group-hover:opacity-100 transition-all duration-150 transform -translate-y-1 group-hover:translate-y-0 border text-[11px] px-2.5 py-1.5 rounded-lg shadow-lg pointer-events-none whitespace-nowrap z-30 ${tooltipAlignClass} ${
+                          isDark
+                            ? 'bg-slate-900 border-slate-700 text-white'
+                            : 'bg-white border-slate-200 text-slate-900'
+                        }`}
+                        style={{ bottom: `calc(${heightPct}% + 10px)` }}
+                      >
+                        <p className="font-medium text-[10px] text-slate-400 tabular-nums">{t.date}</p>
+                        <p className="font-semibold tabular-nums mt-0.5">
+                          {activeTab === 'earnings'
+                            ? `₹${value.toLocaleString('en-IN')}`
+                            : `${value.toLocaleString('en-IN')} ${activeTab === 'users' ? 'Karigars' : 'Diamonds'}`}
+                        </p>
+                        <div className={`absolute top-full w-0 h-0 border-x-4 border-x-transparent border-t-4 ${arrowAlignClass} ${
+                          isDark ? 'border-t-slate-900' : 'border-t-white'
+                        }`} />
+                      </div>
+
+                      <div
+                        className={`w-full rounded-t-sm ${colorClass} transition-opacity duration-150 group-hover:opacity-80`}
+                        style={{ height: `${heightPct}%` }}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className={`flex justify-between text-[10px] pt-2 px-0.5 min-w-[460px] tabular-nums ${textMuted}`}>
+                <span>{dailyTrends[0]?.date}</span>
+                <span>{dailyTrends[Math.floor(dailyTrends.length / 2)]?.date}</span>
+                <span className="font-medium">{dailyTrends[dailyTrends.length - 1]?.date} (Today)</span>
+              </div>
+            </div>
           </div>
 
-          {/* Date Labels */}
-          <div className={`flex justify-between text-[10px] pt-2 px-1 min-w-[500px] ${textMuted}`}>
-            <span>{dailyTrends[0]?.date}</span>
-            <span>{dailyTrends[Math.floor(dailyTrends.length / 2)]?.date}</span>
-            <span className="text-cyan-600 dark:text-cyan-400 font-semibold">{dailyTrends[dailyTrends.length - 1]?.date} (Today)</span>
+          {/* Recent Diamond Work Logs Table */}
+          <div className={`rounded-xl border overflow-hidden transition-colors ${cardBg}`}>
+            <div className={`px-5 py-4 border-b flex items-center justify-between ${dividerColor}`}>
+              <div>
+                <h2 className="text-sm font-semibold tracking-tight flex items-center space-x-2">
+                  <Clock className="w-4 h-4 text-slate-400" />
+                  <span>Recent Work Logs</span>
+                </h2>
+                <p className={`text-xs mt-0.5 ${textMuted}`}>
+                  Latest diamond entries submitted by artisans.
+                </p>
+              </div>
+              <Link
+                to="/users"
+                className={`text-xs font-medium inline-flex items-center space-x-1 hover:underline ${
+                  isDark ? 'text-slate-300' : 'text-slate-700'
+                }`}
+              >
+                <span>All Artisans</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            {recentLogs.length === 0 ? (
+              <div className={`py-12 text-center text-xs ${textMuted}`}>
+                No diamond work logs recorded yet.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className={`text-[11px] font-medium border-b ${tableHeaderBg} ${tableBorder}`}>
+                    <tr>
+                      <th className="py-2.5 px-4">Artisan</th>
+                      <th className="py-2.5 px-3">Work Type</th>
+                      <th className="py-2.5 px-3 text-right">Qty</th>
+                      <th className="py-2.5 px-3 text-right">Rate</th>
+                      <th className="py-2.5 px-3 text-right">Total</th>
+                      <th className="py-2.5 px-4 text-right">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className={`divide-y ${tableBorder}`}>
+                    {recentLogs.map((log) => (
+                      <tr key={log.id} className="hover:bg-slate-500/5 transition-colors">
+                        <td className="py-2.5 px-4 font-medium">
+                          <div className="flex items-center space-x-2">
+                            <UserAvatar src={log.users?.profile_image_url} name={log.users?.full_name} size="xs" />
+                            <span className="truncate max-w-[130px]">
+                              {log.users?.full_name || log.users?.mobile_number || 'Artisan'}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-2.5 px-3">
+                          {log.work_type_title || 'General Polishing'}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-medium tabular-nums">
+                          {Number(log.quantity).toLocaleString('en-IN')}
+                        </td>
+                        <td className={`py-2.5 px-3 text-right tabular-nums ${textMuted}`}>
+                          ₹{Number(log.rate_per_unit || 0).toFixed(2)}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                          ₹{Number(log.total_earnings || 0).toLocaleString('en-IN')}
+                        </td>
+                        <td className={`py-2.5 px-4 text-right whitespace-nowrap tabular-nums ${textMuted}`}>
+                          {log.work_date}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* Grid: Demographics + New Artisans Joined + Live Recent Logs */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Recently Joined + Demographics */}
-        <div className="space-y-6">
-          {/* Recently Joined Artisans Card */}
-          <div className={`rounded-2xl border p-5 sm:p-6 transition-all ${cardBg}`}>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold tracking-tight flex items-center space-x-2">
-                <UserPlus className="w-4 h-4 text-emerald-500" />
-                <span>Recently Joined Artisans</span>
+        {/* Right Inspector Rail (4 Columns): Cohort Pulse + Demographics + Recently Joined */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Cohort Pulse Card */}
+          <div className={`rounded-xl border p-5 transition-colors ${cardBg}`}>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold tracking-tight">Cohort Pulse</h2>
+              <Link
+                to={`/users?activity=${cohortActivitySlug}`}
+                className={`text-xs font-medium inline-flex items-center space-x-0.5 hover:underline ${
+                  isDark ? 'text-slate-300' : 'text-slate-700'
+                }`}
+              >
+                <span>View</span>
+                <ArrowUpRight className="w-3 h-3" />
+              </Link>
+            </div>
+
+            {/* Period Selector */}
+            <div className={`grid grid-cols-4 p-0.5 rounded-lg border text-[11px] font-medium mb-4 ${
+              isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-200'
+            }`}>
+              {[
+                { id: 'daily', label: 'Today' },
+                { id: 'weekly', label: '7d' },
+                { id: 'fifteen_days', label: '15d' },
+                { id: 'monthly', label: '30d' },
+              ].map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => setActiveUserPeriod(p.id)}
+                  className={`py-1 rounded-md transition-colors text-center ${
+                    activeUserPeriod === p.id
+                      ? isDark ? 'bg-slate-800 text-white' : 'bg-white text-slate-900 shadow-xs'
+                      : textMuted
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Cohort Figures */}
+            <div className="space-y-3">
+              <div className="flex items-baseline justify-between">
+                <div>
+                  <span className={`text-xs ${textMuted}`}>Active Artisans</span>
+                  <div className="flex items-baseline space-x-1.5 mt-0.5">
+                    <span className="text-2xl font-semibold tabular-nums">
+                      {currentActiveStats.active_users}
+                    </span>
+                    <span className={`text-xs tabular-nums ${textMuted}`}>
+                      / {kpi.total_users}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                  {currentActiveStats.percentage}% active
+                </span>
+              </div>
+
+              <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                <div
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    isDark ? 'bg-slate-200' : 'bg-slate-900'
+                  }`}
+                  style={{ width: `${currentActiveStats.percentage}%` }}
+                />
+              </div>
+
+              <div className={`grid grid-cols-2 gap-3 pt-3 border-t ${dividerColor}`}>
+                <div>
+                  <span className={`text-[11px] ${textMuted}`}>Diamonds</span>
+                  <p className="text-sm font-semibold tabular-nums mt-0.5">
+                    {Number(currentActiveStats.diamonds).toLocaleString('en-IN')}
+                  </p>
+                </div>
+                <div>
+                  <span className={`text-[11px] ${textMuted}`}>Wages</span>
+                  <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums mt-0.5">
+                    ₹{Number(currentActiveStats.earnings).toLocaleString('en-IN')}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Platform Breakdown */}
+          <div className={`rounded-xl border p-5 space-y-4 transition-colors ${cardBg}`}>
+            <h2 className="text-sm font-semibold tracking-tight">Platform Breakdown</h2>
+
+            {/* Language */}
+            <div>
+              <div className="flex items-center justify-between text-xs mb-1.5">
+                <span className="font-medium flex items-center space-x-1.5">
+                  <Globe2 className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Language</span>
+                </span>
+                <span className={`tabular-nums ${textMuted}`}>
+                  {demographics.gujarati_users} GU · {demographics.english_users} EN
+                </span>
+              </div>
+              <div className="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden flex">
+                <div className="bg-sky-500 h-full" style={{ width: `${guPct}%` }} />
+                <div className="bg-slate-400 dark:bg-slate-600 h-full" style={{ width: `${enPct}%` }} />
+              </div>
+            </div>
+
+            {/* App Mode */}
+            <div className={`pt-3 border-t ${dividerColor}`}>
+              <div className="flex items-center justify-between text-xs mb-1.5">
+                <span className="font-medium flex items-center space-x-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                  <span>App Mode</span>
+                </span>
+                <span className={`tabular-nums ${textMuted}`}>
+                  {demographics.advance_mode_users || 0} Adv · {demographics.simple_mode_users || 0} Simple
+                </span>
+              </div>
+              <div className="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden flex">
+                <div className="bg-indigo-500 h-full" style={{ width: `${advancePct}%` }} />
+                <div className="bg-slate-400 dark:bg-slate-600 h-full" style={{ width: `${simplePct}%` }} />
+              </div>
+            </div>
+
+            {/* Auth Provider */}
+            <div className={`pt-3 border-t grid grid-cols-2 gap-3 text-xs ${dividerColor}`}>
+              <div>
+                <span className={`text-[11px] flex items-center space-x-1 ${textMuted}`}>
+                  <Smartphone className="w-3 h-3" />
+                  <span>Mobile OTP</span>
+                </span>
+                <p className="text-base font-semibold mt-0.5 tabular-nums">{demographics.phone_users}</p>
+              </div>
+              <div>
+                <span className={`text-[11px] ${textMuted}`}>Google Sign-in</span>
+                <p className="text-base font-semibold mt-0.5 tabular-nums">{demographics.google_users}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Recently Joined Artisans */}
+          <div className={`rounded-xl border p-5 transition-colors ${cardBg}`}>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold tracking-tight flex items-center space-x-1.5">
+                <UserPlus className="w-4 h-4 text-slate-400" />
+                <span>Recently Joined</span>
               </h2>
-              <Link to="/users?activity=new_users" className="text-[11px] text-cyan-600 dark:text-cyan-400 hover:underline font-medium">
-                View New
+              <Link
+                to="/users?activity=new_users"
+                className={`text-xs font-medium hover:underline ${
+                  isDark ? 'text-slate-300' : 'text-slate-700'
+                }`}
+              >
+                View all
               </Link>
             </div>
 
             {recentUsers.length === 0 ? (
               <p className={`text-xs py-4 text-center ${textMuted}`}>No users registered yet.</p>
             ) : (
-              <div className="space-y-2.5">
+              <div className={`divide-y ${dividerColor}`}>
                 {recentUsers.map((u) => {
-                  const initial = u.full_name ? u.full_name.charAt(0).toUpperCase() : 'A';
                   const joinedTime = formatJoinDateTime(u.created_at);
                   const duration = getConnectedDuration(u.created_at);
 
@@ -557,36 +622,32 @@ const Dashboard = () => {
                     <Link
                       key={u.id}
                       to={`/users/${u.id}`}
-                      className={`p-2.5 rounded-xl border flex items-center justify-between transition-all group ${
-                        isDark
-                          ? 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'
-                          : 'bg-slate-50 border-slate-200 hover:border-slate-300'
-                      }`}
+                      className="py-2.5 first:pt-1 last:pb-1 flex items-center justify-between transition-colors group"
                     >
                       <div className="flex items-center space-x-2.5 min-w-0">
                         <UserAvatar src={u.profile_image_url} name={u.full_name} size="sm" />
                         <div className="truncate">
-                          <div className="flex items-center space-x-1">
-                            <p className="text-xs font-semibold group-hover:text-cyan-600 dark:group-hover:text-cyan-400 truncate">
+                          <div className="flex items-center space-x-1.5">
+                            <p className="text-xs font-medium group-hover:underline truncate">
                               {u.full_name || 'Artisan'}
                             </p>
                             {u.app_mode === 'advance' && (
-                              <span className="text-[8px] font-bold px-1 py-0.2 rounded bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30">
+                              <span className="text-[9px] font-semibold px-1 py-0.2 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
                                 ADV
                               </span>
                             )}
                           </div>
-                          <p className={`text-[10px] truncate ${textMuted}`}>
+                          <p className={`text-[11px] truncate tabular-nums ${textMuted}`}>
                             {u.mobile_number || u.email}
                           </p>
                         </div>
                       </div>
 
                       <div className="text-right shrink-0 ml-2">
-                        <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                        <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 tabular-nums">
                           {duration}
                         </span>
-                        <p className={`text-[9px] mt-0.5 ${textMuted}`}>{joinedTime.split(',')[0]}</p>
+                        <p className={`text-[10px] tabular-nums ${textMuted}`}>{joinedTime.split(',')[0]}</p>
                       </div>
                     </Link>
                   );
@@ -594,145 +655,6 @@ const Dashboard = () => {
               </div>
             )}
           </div>
-
-          {/* User Demographics */}
-          <div className={`rounded-2xl border p-5 sm:p-6 space-y-4 transition-all ${cardBg}`}>
-            <h2 className="text-sm font-semibold tracking-tight flex items-center space-x-2">
-              <Globe2 className="w-4 h-4 text-cyan-500" />
-              <span>Language & Platform</span>
-            </h2>
-
-            {/* Language Preference */}
-            <div>
-              <div className="flex items-center justify-between text-xs mb-2">
-                <span className="font-medium">Language</span>
-                <span className={textMuted}>
-                  {demographics.gujarati_users} Gujarati / {demographics.english_users} English
-                </span>
-              </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden flex">
-                <div
-                  className="bg-cyan-500 h-full"
-                  style={{ width: `${guPct}%` }}
-                />
-                <div
-                  className="bg-blue-600 h-full"
-                  style={{ width: `${enPct}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Experience Mode Preference */}
-            <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
-              <div className="flex items-center justify-between text-xs mb-2">
-                <span className="font-medium flex items-center space-x-1">
-                  <Sparkles className="w-3 h-3 text-purple-500" />
-                  <span>App Mode</span>
-                </span>
-                <span className={textMuted}>
-                  {demographics.advance_mode_users || 0} Advance / {demographics.simple_mode_users || 0} Simple
-                </span>
-              </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden flex">
-                <div
-                  className="bg-purple-500 h-full"
-                  style={{ width: `${advancePct}%` }}
-                />
-                <div
-                  className="bg-slate-400 dark:bg-slate-600 h-full"
-                  style={{ width: `${simplePct}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Registration Provider */}
-            <div className="pt-2">
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className={`p-2.5 rounded-xl border ${
-                  isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
-                }`}>
-                  <span className={`text-[11px] ${textMuted}`}>Mobile OTP</span>
-                  <p className="text-base font-bold mt-0.5">{demographics.phone_users}</p>
-                </div>
-                <div className={`p-2.5 rounded-xl border ${
-                  isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
-                }`}>
-                  <span className={`text-[11px] ${textMuted}`}>Google Sign-in</span>
-                  <p className="text-base font-bold mt-0.5">{demographics.google_users}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Live Recent Work Logs Feed */}
-        <div className={`lg:col-span-2 rounded-2xl border p-5 sm:p-6 transition-all ${cardBg}`}>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-base font-semibold tracking-tight flex items-center space-x-2">
-                <Clock className="w-4 h-4 text-cyan-500" />
-                <span>Recent Diamond Logs Feed</span>
-              </h2>
-              <p className={`text-xs mt-0.5 ${textMuted}`}>
-                Latest diamond piece-work entries submitted by artisans.
-              </p>
-            </div>
-            <Link
-              to="/users"
-              className="text-xs text-cyan-600 dark:text-cyan-400 hover:underline font-medium inline-flex items-center space-x-1"
-            >
-              <span>Explore Users</span>
-              <ArrowUpRight className="w-3 h-3" />
-            </Link>
-          </div>
-
-          {recentLogs.length === 0 ? (
-            <div className={`py-12 text-center text-sm ${textMuted}`}>
-              No diamond work logs recorded yet.
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className={`uppercase tracking-wider text-[10px] border-b ${tableHeaderBg} ${tableBorder}`}>
-                  <tr>
-                    <th className="py-3 px-3">Artisan</th>
-                    <th className="py-3 px-3">Work Type</th>
-                    <th className="py-3 px-3 text-right">Quantity</th>
-                    <th className="py-3 px-3 text-right">Rate</th>
-                    <th className="py-3 px-3 text-right">Total (₹)</th>
-                    <th className="py-3 px-3 text-right">Date</th>
-                  </tr>
-                </thead>
-                <tbody className={`divide-y ${tableBorder}`}>
-                  {recentLogs.map((log) => (
-                    <tr key={log.id} className="hover:bg-slate-500/5 transition-colors">
-                      <td className="py-3 px-3 font-medium flex items-center space-x-2">
-                        <UserAvatar src={log.users?.profile_image_url} name={log.users?.full_name} size="xs" />
-                        <span className="truncate max-w-[120px]">
-                          {log.users?.full_name || log.users?.mobile_number || 'Artisan'}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 font-medium">
-                        {log.work_type_title || 'General Polishing'}
-                      </td>
-                      <td className="py-3 px-3 text-right font-semibold">
-                        {Number(log.quantity).toLocaleString('en-IN')}
-                      </td>
-                      <td className={`py-3 px-3 text-right ${textMuted}`}>
-                        ₹{Number(log.rate_per_unit || 0).toFixed(2)}
-                      </td>
-                      <td className="py-3 px-3 text-right font-bold text-emerald-600 dark:text-emerald-400">
-                        ₹{Number(log.total_earnings || 0).toLocaleString('en-IN')}
-                      </td>
-                      <td className={`py-3 px-3 text-right whitespace-nowrap ${textMuted}`}>
-                        {log.work_date}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
         </div>
       </div>
     </div>

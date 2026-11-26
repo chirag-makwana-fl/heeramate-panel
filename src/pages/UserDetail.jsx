@@ -178,209 +178,223 @@ const UserDetail = () => {
   const tenureDuration = getConnectedDuration(user.created_at);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Back button */}
-      <div>
+    <div className="space-y-5 max-w-7xl mx-auto pb-12">
+      {/* Top Breadcrumb */}
+      <div className="flex items-center justify-between">
         <Link
           to="/users"
-          className="inline-flex items-center space-x-1.5 text-xs font-medium text-cyan-600 dark:text-cyan-400 hover:underline transition-colors"
+          className={`inline-flex items-center space-x-1.5 text-xs font-medium hover:underline transition-colors ${
+            isDark ? 'text-slate-300' : 'text-slate-700'
+          }`}
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Artisans Directory</span>
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to Artisan Directory</span>
         </Link>
       </div>
 
-      {/* Header Profile Card */}
-      <div className={`rounded-2xl border p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all ${cardBg}`}>
-        <div className="flex items-center space-x-4">
-          <UserAvatar src={user.profile_image_url} name={user.full_name} size="lg" />
-          <div>
-            <div className="flex items-center space-x-3">
-              <h1 className="text-xl font-bold tracking-tight">
-                {user.full_name || 'Unnamed Artisan'}
-              </h1>
-              {isSuspended ? (
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-500 border border-rose-500/20">
-                  Suspended
-                </span>
-              ) : (
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                  Active
-                </span>
-              )}
-              {user.app_mode === 'advance' ? (
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 inline-flex items-center space-x-1 shadow-sm">
-                  <Sparkles className="w-3 h-3 text-purple-500 animate-pulse" />
-                  <span>Advance Mode</span>
-                </span>
-              ) : (
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20">
-                  Simple Mode
-                </span>
-              )}
+      {/* 12-Column Master-Detail Split Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Inspector Rail (4 Cols): Identity, Actions & Device */}
+        <div className="lg:col-span-4 space-y-5">
+          <div className={`rounded-xl border p-5 space-y-5 transition-colors ${cardBg}`}>
+            <div className="flex items-start space-x-3.5">
+              <UserAvatar src={user.profile_image_url} name={user.full_name} size="lg" />
+              <div className="min-w-0 flex-1">
+                <h1 className="text-base font-semibold tracking-tight truncate">
+                  {user.full_name || 'Unnamed Artisan'}
+                </h1>
+                <p className={`text-xs mt-0.5 truncate tabular-nums ${textMuted}`}>
+                  {user.mobile_number || user.email || 'No contact'}
+                </p>
+                <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                  {isSuspended ? (
+                    <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-rose-500/10 text-rose-500 border border-rose-500/20">
+                      Suspended
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      Active
+                    </span>
+                  )}
+                  {user.app_mode === 'advance' ? (
+                    <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 border border-indigo-500/25 inline-flex items-center space-x-1">
+                      <Sparkles className="w-3 h-3 text-indigo-500" />
+                      <span>Advance Mode</span>
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20">
+                      Simple Mode
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
 
-            <div className={`flex flex-wrap items-center gap-3 text-xs mt-1.5 ${textMuted}`}>
-              <span className="font-medium">
-                {user.mobile_number || user.email || 'No contact'}
-              </span>
-              <span>•</span>
-              <span className="inline-flex items-center space-x-1">
-                <Globe2 className="w-3.5 h-3.5 text-slate-400" />
-                <span>Language: {user.preferred_language === 'gu' ? 'ગુજરાતી' : 'English'}</span>
-              </span>
-              <span>•</span>
-              <span className="inline-flex items-center space-x-1">
-                <span className="font-semibold text-slate-700 dark:text-slate-300">Mode:</span>
-                <span className={user.app_mode === 'advance' ? 'text-purple-600 dark:text-purple-400 font-bold' : ''}>
-                  {user.app_mode === 'advance' ? '⚡ Advance' : 'Simple'}
+            {/* Key-Value Metadata List */}
+            <div className={`pt-4 border-t space-y-2.5 text-xs ${
+              isDark ? 'border-slate-800/80' : 'border-slate-200'
+            }`}>
+              <div className="flex items-center justify-between">
+                <span className={textMuted}>Language</span>
+                <span className="font-medium flex items-center space-x-1">
+                  <Globe2 className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{user.preferred_language === 'gu' ? 'ગુજરાતી' : 'English'}</span>
                 </span>
-              </span>
-              <span>•</span>
-              <span className="inline-flex items-center space-x-1.5 text-cyan-600 dark:text-cyan-400 font-semibold">
-                <Calendar className="w-3.5 h-3.5" />
-                <span>Joined: {joinDateTimeFormatted}</span>
-              </span>
-              <span>•</span>
-              <span className="inline-flex items-center space-x-1 text-emerald-600 dark:text-emerald-400 font-semibold">
-                <Sparkles className="w-3 h-3" />
-                <span>{tenureDuration}</span>
-              </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className={textMuted}>Auth Provider</span>
+                <span className="font-medium uppercase text-[11px]">{user.auth_provider || 'phone'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className={textMuted}>Joined</span>
+                <span className="font-medium tabular-nums">{joinDateTimeFormatted}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className={textMuted}>Tenure</span>
+                <span className="font-medium text-emerald-600 dark:text-emerald-400">{tenureDuration}</span>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className={`pt-4 border-t flex flex-col gap-2 ${
+              isDark ? 'border-slate-800/80' : 'border-slate-200'
+            }`}>
+              <Link
+                to={`/notifications?userId=${user.id}`}
+                className={`w-full inline-flex items-center justify-center space-x-1.5 px-3.5 py-2 rounded-lg text-xs font-medium transition-colors ${
+                  isDark
+                    ? 'bg-white text-slate-950 hover:bg-slate-200'
+                    : 'bg-slate-900 text-white hover:bg-slate-800'
+                }`}
+              >
+                <Megaphone className="w-3.5 h-3.5" />
+                <span>Send Notification</span>
+              </Link>
+
+              <button
+                onClick={toggleStatus}
+                disabled={statusUpdating}
+                className={`w-full px-3.5 py-2 rounded-lg text-xs font-medium transition-colors border ${
+                  isSuspended
+                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500'
+                    : 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border-rose-500/25'
+                }`}
+              >
+                {statusUpdating
+                  ? 'Updating...'
+                  : isSuspended
+                  ? 'Reactivate Account'
+                  : 'Suspend Artisan'}
+              </button>
             </div>
           </div>
-        </div>
 
-        {/* Action buttons */}
-        <div className="flex items-center space-x-3 self-start md:self-auto">
-          <Link
-            to={`/notifications?userId=${user.id}`}
-            className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-cyan-600 hover:bg-cyan-500 text-white shadow-md shadow-cyan-600/20 transition-all"
-          >
-            <Megaphone className="w-3.5 h-3.5" />
-            <span>Send Notification</span>
-          </Link>
-
-          <button
-            onClick={toggleStatus}
-            disabled={statusUpdating}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all border ${
-              isSuspended
-                ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-600/20'
-                : 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border-rose-500/30'
-            }`}
-          >
-            {statusUpdating
-              ? 'Updating...'
-              : isSuspended
-              ? 'Reactivate Account'
-              : 'Suspend Artisan'}
-          </button>
-        </div>
-      </div>
-
-      {/* KPI Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
-        {/* Days Logged */}
-        <div className={`rounded-xl border p-4 transition-all ${cardBg}`}>
-          <span className={`text-[11px] font-semibold uppercase tracking-wider ${textMuted}`}>Days Logged</span>
-          <p className="text-2xl font-bold mt-1">{analytics?.total_days_logged || 0}</p>
-          <p className={`text-[11px] mt-0.5 ${textMuted}`}>consistent working days</p>
-        </div>
-
-        {/* Diamonds Tracked */}
-        <div className={`rounded-xl border p-4 transition-all ${cardBg}`}>
-          <span className={`text-[11px] font-semibold uppercase tracking-wider ${textMuted}`}>Total Diamonds</span>
-          <p className="text-2xl font-bold text-cyan-600 dark:text-cyan-400 mt-1">
-            {Number(analytics?.total_diamonds || 0).toLocaleString('en-IN')}
-          </p>
-          <p className={`text-[11px] mt-0.5 ${textMuted}`}>pieces recorded</p>
-        </div>
-
-        {/* Total Earnings */}
-        <div className={`rounded-xl border p-4 transition-all ${cardBg}`}>
-          <span className={`text-[11px] font-semibold uppercase tracking-wider ${textMuted}`}>Total Earned</span>
-          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
-            ₹{Number(analytics?.total_earnings || 0).toLocaleString('en-IN')}
-          </p>
-          <p className={`text-[11px] mt-0.5 ${textMuted}`}>gross calculated wages</p>
-        </div>
-
-        {/* Total Upad */}
-        <div className={`rounded-xl border p-4 transition-all ${cardBg}`}>
-          <span className={`text-[11px] font-semibold uppercase tracking-wider ${textMuted}`}>Advance (Upad)</span>
-          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">
-            ₹{Number(analytics?.total_upad || 0).toLocaleString('en-IN')}
-          </p>
-          <p className={`text-[11px] mt-0.5 ${textMuted}`}>cash / online advances</p>
-        </div>
-
-        {/* Net Balance */}
-        <div className={`rounded-xl border p-4 col-span-2 md:col-span-1 transition-all ${cardBg}`}>
-          <span className={`text-[11px] font-semibold uppercase tracking-wider ${textMuted}`}>Net Balance</span>
-          <p className="text-2xl font-bold mt-1">
-            ₹{netEarnings.toLocaleString('en-IN')}
-          </p>
-          <p className={`text-[11px] mt-0.5 ${textMuted}`}>earned minus advance</p>
-        </div>
-      </div>
-
-      {/* Device & Telemetry Info */}
-      {latestDevice && (
-        <div className={`rounded-xl border p-4 flex flex-wrap items-center justify-between gap-4 text-xs transition-all ${cardBg}`}>
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0 border border-cyan-500/20">
-              <Smartphone className="w-4 h-4" />
+          {/* Device & Telemetry Card */}
+          {latestDevice && (
+            <div className={`rounded-xl border p-4 space-y-2.5 text-xs transition-colors ${cardBg}`}>
+              <div className="flex items-center space-x-2">
+                <Smartphone className="w-4 h-4 text-slate-400 shrink-0" />
+                <span className="font-semibold">Latest Device</span>
+              </div>
+              <div className="space-y-1.5 text-[11px]">
+                <div className="flex items-center justify-between">
+                  <span className={textMuted}>Model</span>
+                  <span className="font-medium">{latestDevice.device_brand_model || 'Unknown'}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className={textMuted}>OS / App</span>
+                  <span className="font-medium tabular-nums">
+                    {latestDevice.platform} {latestDevice.os_version} · v{latestDevice.app_version || 'N/A'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className={textMuted}>IP Address</span>
+                  <span className="font-mono">{latestDevice.ip_address || 'N/A'}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className={textMuted}>Last Active</span>
+                  <span className="tabular-nums">{new Date(latestDevice.created_at).toLocaleDateString('en-IN')}</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="font-semibold">
-                {latestDevice.device_brand_model || 'Unknown Device'} • {latestDevice.platform} {latestDevice.os_version}
-              </p>
-              <p className={`text-[11px] ${textMuted}`}>
-                App Version: {latestDevice.app_version || 'N/A'} • IP: {latestDevice.ip_address || 'N/A'}
+          )}
+        </div>
+
+        {/* Right Main Stage (8 Cols): Ledger Strip + Tabs + Tables */}
+        <div className="lg:col-span-8 space-y-5">
+          {/* Unified Ledger Summary Strip */}
+          <div className={`rounded-xl border grid grid-cols-2 sm:grid-cols-5 divide-y sm:divide-y-0 sm:divide-x overflow-hidden transition-colors ${cardBg} ${
+            isDark ? 'divide-slate-800/80' : 'divide-slate-200'
+          }`}>
+            <div className="p-4">
+              <span className={`text-[11px] font-medium ${textMuted}`}>Days Logged</span>
+              <p className="text-lg font-semibold mt-1 tabular-nums">{analytics?.total_days_logged || 0}</p>
+            </div>
+
+            <div className="p-4">
+              <span className={`text-[11px] font-medium ${textMuted}`}>Diamonds</span>
+              <p className="text-lg font-semibold mt-1 tabular-nums">
+                {Number(analytics?.total_diamonds || 0).toLocaleString('en-IN')}
               </p>
             </div>
+
+            <div className="p-4">
+              <span className={`text-[11px] font-medium ${textMuted}`}>Gross Earned</span>
+              <p className="text-lg font-semibold text-emerald-600 dark:text-emerald-400 mt-1 tabular-nums">
+                ₹{Number(analytics?.total_earnings || 0).toLocaleString('en-IN')}
+              </p>
+            </div>
+
+            <div className="p-4">
+              <span className={`text-[11px] font-medium ${textMuted}`}>Upad</span>
+              <p className="text-lg font-semibold text-amber-600 dark:text-amber-400 mt-1 tabular-nums">
+                ₹{Number(analytics?.total_upad || 0).toLocaleString('en-IN')}
+              </p>
+            </div>
+
+            <div className="p-4 col-span-2 sm:col-span-1">
+              <span className={`text-[11px] font-medium ${textMuted}`}>Net Balance</span>
+              <p className="text-lg font-semibold mt-1 tabular-nums">
+                ₹{netEarnings.toLocaleString('en-IN')}
+              </p>
+            </div>
           </div>
-          <div className={`text-[11px] ${textMuted}`}>
-            Last active: {new Date(latestDevice.created_at).toLocaleString('en-IN')}
-          </div>
-        </div>
-      )}
 
       {/* Content Tabs */}
       <div className="space-y-4">
-        <div className={`flex items-center space-x-2 border-b pb-2 ${
-          isDark ? 'border-slate-800' : 'border-slate-200'
+        <div className={`flex items-center space-x-6 border-b ${
+          isDark ? 'border-slate-800/80' : 'border-slate-200'
         }`}>
           <button
             onClick={() => setActiveTab('work_logs')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all ${
+            className={`pb-2.5 text-xs font-medium flex items-center space-x-1.5 border-b-2 transition-colors ${
               activeTab === 'work_logs'
-                ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/25'
-                : textMuted
+                ? isDark ? 'border-white text-white' : 'border-slate-900 text-slate-900'
+                : `border-transparent ${textMuted} hover:text-slate-700 dark:hover:text-slate-200`
             }`}
           >
             <Gem className="w-3.5 h-3.5" />
-            <span>Daily Work Logs ({workLogs.length})</span>
+            <span>Work Logs ({workLogs.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('upad')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all ${
+            className={`pb-2.5 text-xs font-medium flex items-center space-x-1.5 border-b-2 transition-colors ${
               activeTab === 'upad'
-                ? 'bg-amber-600 text-white shadow-md shadow-amber-600/25'
-                : textMuted
+                ? isDark ? 'border-amber-400 text-amber-400' : 'border-amber-600 text-amber-600'
+                : `border-transparent ${textMuted} hover:text-slate-700 dark:hover:text-slate-200`
             }`}
           >
             <Wallet className="w-3.5 h-3.5" />
-            <span>Upad / Advance Logs ({upadLogs.length})</span>
+            <span>Upad / Advance ({upadLogs.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('rates')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all ${
+            className={`pb-2.5 text-xs font-medium flex items-center space-x-1.5 border-b-2 transition-colors ${
               activeTab === 'rates'
-                ? 'bg-violet-600 text-white shadow-md shadow-violet-600/25'
-                : textMuted
+                ? isDark ? 'border-white text-white' : 'border-slate-900 text-slate-900'
+                : `border-transparent ${textMuted} hover:text-slate-700 dark:hover:text-slate-200`
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
@@ -521,6 +535,8 @@ const UserDetail = () => {
             )}
           </div>
         )}
+      </div>
+      </div>
       </div>
     </div>
   );

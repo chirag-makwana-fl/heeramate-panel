@@ -92,8 +92,8 @@ const Retention = () => {
   const [sendResult, setSendResult] = useState(null);
 
   // Styling helpers
-  const cardBg = isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200';
-  const textMuted = isDark ? 'text-slate-400' : 'text-slate-600';
+  const cardBg = isDark ? 'bg-[#0e131d] border-slate-800/80' : 'bg-white border-slate-200';
+  const textMuted = isDark ? 'text-slate-400' : 'text-slate-500';
   const headingColor = isDark ? 'text-white' : 'text-slate-900';
 
   // 1. Fetch Retention KPIs
@@ -230,241 +230,173 @@ const Retention = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner Header */}
-      <div className={`p-6 rounded-3xl border ${cardBg} shadow-sm`}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center space-x-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
-                <HeartHandshake className="w-5 h-5" />
-              </div>
-              <div>
-                <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${headingColor}`}>
-                  Artisan Retention & Inactivity Engine
-                </h1>
-                <p className={`text-xs sm:text-sm ${textMuted}`}>
-                  Identify inactive diamond artisans, mitigate churn, and trigger 1-click friendly re-engagement reminders.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => {
-                fetchMetrics();
-                fetchUsers();
-              }}
-              disabled={metricsLoading || loadingUsers}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold border flex items-center space-x-1.5 transition-all ${
-                isDark 
-                  ? 'border-slate-800 bg-slate-900/80 hover:bg-slate-800 text-slate-300' 
-                  : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
-              }`}
-            >
-              <RotateCw className={`w-4 h-4 ${metricsLoading || loadingUsers ? 'animate-spin text-cyan-500' : ''}`} />
-              <span>Refresh Stats</span>
-            </button>
-            <Link
-              to="/notifications"
-              className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-cyan-500 hover:bg-cyan-600 text-white flex items-center space-x-1.5 shadow-sm transition-all"
-            >
-              <Megaphone className="w-4 h-4" />
-              <span>Broadcast Hub</span>
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* KPI Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* 7+ Days Inactive */}
-        <div className={`p-5 rounded-3xl border ${cardBg} shadow-sm relative overflow-hidden`}>
-          <div className="flex items-start justify-between">
-            <div>
-              <p className={`text-xs font-semibold ${textMuted}`}>Inactive &gt; 7 Days</p>
-              <h3 className={`text-2xl font-black mt-1 ${headingColor}`}>
-                {metricsLoading ? '...' : (metrics?.inactive_7d ?? 0)}
-              </h3>
-            </div>
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
-              <Clock className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-center space-x-2">
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-              {metrics?.total_users ? `${Math.round(((metrics.inactive_7d || 0) / metrics.total_users) * 100)}% of total` : '0%'}
-            </span>
-            <span className={`text-[11px] ${textMuted}`}>Needs check-in</span>
-          </div>
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className={`text-xl font-semibold tracking-tight ${headingColor}`}>
+            Retention & Inactivity
+          </h1>
+          <p className={`text-xs mt-0.5 ${textMuted}`}>
+            Identify inactive artisans and trigger targeted re-engagement notifications.
+          </p>
         </div>
 
-        {/* 14+ Days Inactive (High Churn Risk) */}
-        <div className={`p-5 rounded-3xl border ${cardBg} shadow-sm relative overflow-hidden`}>
-          <div className="flex items-start justify-between">
-            <div>
-              <p className={`text-xs font-semibold ${textMuted}`}>Inactive &gt; 14 Days</p>
-              <h3 className={`text-2xl font-black mt-1 ${isDark ? 'text-rose-400' : 'text-rose-600'}`}>
-                {metricsLoading ? '...' : (metrics?.inactive_14d ?? 0)}
-              </h3>
-            </div>
-            <div className="w-10 h-10 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500">
-              <TrendingDown className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-center space-x-2">
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-              High Churn Risk
-            </span>
-            <span className={`text-[11px] ${textMuted}`}>Re-activation target</span>
-          </div>
-        </div>
-
-        {/* Never Logged Any Work */}
-        <div className={`p-5 rounded-3xl border ${cardBg} shadow-sm relative overflow-hidden`}>
-          <div className="flex items-start justify-between">
-            <div>
-              <p className={`text-xs font-semibold ${textMuted}`}>Never Logged Work</p>
-              <h3 className={`text-2xl font-black mt-1 ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
-                {metricsLoading ? '...' : (metrics?.never_logged ?? 0)}
-              </h3>
-            </div>
-            <div className="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500">
-              <UserX className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-center space-x-2">
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
-              Onboarding Gap
-            </span>
-            <span className={`text-[11px] ${textMuted}`}>Zero entries</span>
-          </div>
-        </div>
-
-        {/* 7-Day Consistency Rate */}
-        <div className={`p-5 rounded-3xl border ${cardBg} shadow-sm relative overflow-hidden`}>
-          <div className="flex items-start justify-between">
-            <div>
-              <p className={`text-xs font-semibold ${textMuted}`}>Active Consistency (7d)</p>
-              <h3 className={`text-2xl font-black mt-1 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                {metricsLoading ? '...' : `${metrics?.retention_rate_7d ?? 0}%`}
-              </h3>
-            </div>
-            <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
-              <Flame className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-center space-x-2">
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              {metrics?.active_7d ?? 0} active artisans
-            </span>
-            <span className={`text-[11px] ${textMuted}`}>Active recently</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 1-Click Fast Re-engagement Triggers */}
-      <div className="space-y-3">
         <div className="flex items-center space-x-2">
-          <Sparkles className="w-4 h-4 text-cyan-500" />
-          <h2 className={`text-sm sm:text-base font-bold ${headingColor}`}>
-            1-Click Cohort Re-engagement Launches
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Card 1: 7-Day Inactive */}
-          <div className={`p-5 rounded-3xl border ${cardBg} shadow-sm flex flex-col justify-between hover:border-amber-500/40 transition-all`}>
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-xs border border-amber-500/20">
-                  Cohort 1 • 7+ Days Inactive
-                </span>
-                <span className={`text-xs font-semibold ${textMuted}`}>
-                  {metrics?.inactive_7d ?? 0} Artisans
-                </span>
-              </div>
-              <h3 className={`text-sm font-bold ${headingColor}`}>
-                Friendly Check-in Reminder
-              </h3>
-              <p className={`text-xs leading-relaxed ${textMuted}`}>
-                "We noticed you haven't recorded your work recently! Open HeeraMate today to keep your tallies accurate."
-              </p>
-            </div>
-            <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800">
-              <button
-                onClick={() => handleOpenCohortPush('inactive_7d')}
-                className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white flex items-center justify-center space-x-2 transition-all shadow-sm"
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>Trigger 7-Day Push</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Card 2: 14-Day Inactive */}
-          <div className={`p-5 rounded-3xl border ${cardBg} shadow-sm flex flex-col justify-between hover:border-rose-500/40 transition-all`}>
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs border border-rose-500/20">
-                  Cohort 2 • 14+ Days Inactive
-                </span>
-                <span className={`text-xs font-semibold ${textMuted}`}>
-                  {metrics?.inactive_14d ?? 0} Artisans
-                </span>
-              </div>
-              <h3 className={`text-sm font-bold ${headingColor}`}>
-                High-Priority Re-activation Push
-              </h3>
-              <p className={`text-xs leading-relaxed ${textMuted}`}>
-                "HeeraMate misses you! Don't lose track of your hard-earned wages and daily diamond counts."
-              </p>
-            </div>
-            <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800">
-              <button
-                onClick={() => handleOpenCohortPush('inactive_14d')}
-                className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center space-x-2 transition-all shadow-sm"
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>Trigger 14-Day Push</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Card 3: Never Logged */}
-          <div className={`p-5 rounded-3xl border ${cardBg} shadow-sm flex flex-col justify-between hover:border-purple-500/40 transition-all`}>
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="px-2.5 py-1 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold text-xs border border-purple-500/20">
-                  Cohort 3 • Never Logged
-                </span>
-                <span className={`text-xs font-semibold ${textMuted}`}>
-                  {metrics?.never_logged ?? 0} Artisans
-                </span>
-              </div>
-              <h3 className={`text-sm font-bold ${headingColor}`}>
-                Onboarding Assistance Push
-              </h3>
-              <p className={`text-xs leading-relaxed ${textMuted}`}>
-                "Welcome to HeeraMate! Need help getting started? Add your diamond rate and log your first entry."
-              </p>
-            </div>
-            <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800">
-              <button
-                onClick={() => handleOpenCohortPush('never_logged')}
-                className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-purple-500 hover:bg-purple-600 text-white flex items-center justify-center space-x-2 transition-all shadow-sm"
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>Trigger Onboarding Push</span>
-              </button>
-            </div>
-          </div>
+          <button
+            onClick={() => {
+              fetchMetrics();
+              fetchUsers();
+            }}
+            disabled={metricsLoading || loadingUsers}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center space-x-1.5 transition-colors ${
+              isDark 
+                ? 'border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300' 
+                : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+            }`}
+          >
+            <RotateCw className={`w-3.5 h-3.5 ${metricsLoading || loadingUsers ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
+          <Link
+            to="/notifications"
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-colors ${
+              isDark
+                ? 'bg-white text-slate-950 hover:bg-slate-200'
+                : 'bg-slate-900 text-white hover:bg-slate-800'
+            }`}
+          >
+            <Megaphone className="w-3.5 h-3.5" />
+            <span>Broadcast Hub</span>
+          </Link>
         </div>
       </div>
 
-      {/* Inactive Artisan Follow-up Directory */}
-      <div className={`rounded-3xl border ${cardBg} shadow-sm overflow-hidden`}>
+      {/* Unified KPI Strip */}
+      <div className={`rounded-xl border grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x overflow-hidden ${cardBg} ${
+        isDark ? 'divide-slate-800/80' : 'divide-slate-200'
+      }`}>
+        <div className="p-4">
+          <div className="flex items-center justify-between">
+            <span className={`text-xs font-medium ${textMuted}`}>Inactive &gt; 7 Days</span>
+            <Clock className="w-4 h-4 text-amber-500" />
+          </div>
+          <p className={`text-2xl font-semibold mt-1.5 tabular-nums ${headingColor}`}>
+            {metricsLoading ? '...' : (metrics?.inactive_7d ?? 0)}
+          </p>
+          <p className={`text-[11px] mt-0.5 tabular-nums ${textMuted}`}>
+            {metrics?.total_users ? `${Math.round(((metrics.inactive_7d || 0) / metrics.total_users) * 100)}% of total` : '0%'} · Needs check-in
+          </p>
+        </div>
+
+        <div className="p-4">
+          <div className="flex items-center justify-between">
+            <span className={`text-xs font-medium ${textMuted}`}>Inactive &gt; 14 Days</span>
+            <TrendingDown className="w-4 h-4 text-rose-500" />
+          </div>
+          <p className={`text-2xl font-semibold mt-1.5 tabular-nums ${isDark ? 'text-rose-400' : 'text-rose-600'}`}>
+            {metricsLoading ? '...' : (metrics?.inactive_14d ?? 0)}
+          </p>
+          <p className={`text-[11px] mt-0.5 ${textMuted}`}>
+            High churn risk
+          </p>
+        </div>
+
+        <div className="p-4">
+          <div className="flex items-center justify-between">
+            <span className={`text-xs font-medium ${textMuted}`}>Never Logged Work</span>
+            <UserX className="w-4 h-4 text-indigo-500" />
+          </div>
+          <p className={`text-2xl font-semibold mt-1.5 tabular-nums ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>
+            {metricsLoading ? '...' : (metrics?.never_logged ?? 0)}
+          </p>
+          <p className={`text-[11px] mt-0.5 ${textMuted}`}>
+            Zero entries recorded
+          </p>
+        </div>
+
+        <div className="p-4">
+          <div className="flex items-center justify-between">
+            <span className={`text-xs font-medium ${textMuted}`}>7-Day Consistency</span>
+            <Flame className="w-4 h-4 text-emerald-500" />
+          </div>
+          <p className={`text-2xl font-semibold mt-1.5 tabular-nums ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+            {metricsLoading ? '...' : `${metrics?.retention_rate_7d ?? 0}%`}
+          </p>
+          <p className={`text-[11px] mt-0.5 tabular-nums ${textMuted}`}>
+            {metrics?.active_7d ?? 0} active artisans
+          </p>
+        </div>
+      </div>
+
+      {/* Compact 3-Column Quick Re-engagement Strip */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className={`p-4 rounded-xl border ${cardBg} flex items-center justify-between gap-3`}>
+          <div className="min-w-0">
+            <div className="flex items-center space-x-2">
+              <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium text-[11px] border border-amber-500/20">
+                7+ Days
+              </span>
+              <span className={`text-xs font-medium tabular-nums ${textMuted}`}>
+                {metrics?.inactive_7d ?? 0} artisans
+              </span>
+            </div>
+            <p className={`text-xs mt-1 truncate ${textMuted}`}>Friendly check-in reminder</p>
+          </div>
+          <button
+            onClick={() => handleOpenCohortPush('inactive_7d')}
+            className="shrink-0 py-1.5 px-3 rounded-lg text-xs font-medium bg-amber-600 hover:bg-amber-500 text-white inline-flex items-center space-x-1.5 transition-colors"
+          >
+            <Send className="w-3.5 h-3.5" />
+            <span>Push</span>
+          </button>
+        </div>
+
+        <div className={`p-4 rounded-xl border ${cardBg} flex items-center justify-between gap-3`}>
+          <div className="min-w-0">
+            <div className="flex items-center space-x-2">
+              <span className="px-2 py-0.5 rounded bg-rose-500/10 text-rose-600 dark:text-rose-400 font-medium text-[11px] border border-rose-500/20">
+                14+ Days
+              </span>
+              <span className={`text-xs font-medium tabular-nums ${textMuted}`}>
+                {metrics?.inactive_14d ?? 0} artisans
+              </span>
+            </div>
+            <p className={`text-xs mt-1 truncate ${textMuted}`}>Re-activation alert</p>
+          </div>
+          <button
+            onClick={() => handleOpenCohortPush('inactive_14d')}
+            className="shrink-0 py-1.5 px-3 rounded-lg text-xs font-medium bg-rose-600 hover:bg-rose-500 text-white inline-flex items-center space-x-1.5 transition-colors"
+          >
+            <Send className="w-3.5 h-3.5" />
+            <span>Push</span>
+          </button>
+        </div>
+
+        <div className={`p-4 rounded-xl border ${cardBg} flex items-center justify-between gap-3`}>
+          <div className="min-w-0">
+            <div className="flex items-center space-x-2">
+              <span className="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium text-[11px] border border-indigo-500/20">
+                Never Logged
+              </span>
+              <span className={`text-xs font-medium tabular-nums ${textMuted}`}>
+                {metrics?.never_logged ?? 0} artisans
+              </span>
+            </div>
+            <p className={`text-xs mt-1 truncate ${textMuted}`}>Onboarding setup push</p>
+          </div>
+          <button
+            onClick={() => handleOpenCohortPush('never_logged')}
+            className="shrink-0 py-1.5 px-3 rounded-lg text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white inline-flex items-center space-x-1.5 transition-colors"
+          >
+            <Send className="w-3.5 h-3.5" />
+            <span>Push</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Full-Width Inactive Artisan Follow-up Directory */}
+      <div className={`rounded-xl border ${cardBg} overflow-hidden`}>
         {/* Tabs & Search Controls */}
         <div className="p-5 border-b border-slate-100 dark:border-slate-800 space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -656,77 +588,85 @@ const Retention = () => {
                       </td>
 
                       {/* Preferred Language */}
-                      <td className="py-3.5 px-4">
-                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase whitespace-nowrap ${
                           u.preferred_language === 'gu'
                             ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
                             : 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20'
                         }`}>
-                          {u.preferred_language === 'gu' ? 'GU (ગુજરાતી)' : 'EN (English)'}
+                          {u.preferred_language === 'gu' ? 'GU · ગુજરાતી' : 'EN · English'}
                         </span>
                       </td>
 
                       {/* Inactivity Duration Pill */}
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         {!u.has_ever_logged ? (
-                          <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                          <span className="px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 whitespace-nowrap">
                             Never logged work
                           </span>
                         ) : u.days_inactive >= 14 ? (
-                          <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-                            {u.days_inactive} days inactive
+                          <span className="px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 whitespace-nowrap tabular-nums">
+                            {u.days_inactive}d inactive
                           </span>
                         ) : (
-                          <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                            {u.days_inactive} days inactive
+                          <span className="px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 whitespace-nowrap tabular-nums">
+                            {u.days_inactive}d inactive
                           </span>
                         )}
                       </td>
 
                       {/* Last Recorded Work Date */}
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap tabular-nums">
                         <span className={`font-mono text-[11px] ${textMuted}`}>
-                          {u.latest_work_date || 'No logs recorded'}
+                          {u.latest_work_date || 'No logs'}
                         </span>
                       </td>
 
                       {/* FCM Push Token Status */}
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         {hasToken ? (
                           isNotificationsAllowed ? (
-                            <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                              <Smartphone className="w-3 h-3" />
+                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
+                              <Smartphone className="w-3 h-3 shrink-0" />
                               <span>Push Ready</span>
                             </span>
                           ) : (
-                            <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                              <VolumeX className="w-3 h-3" />
+                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 whitespace-nowrap">
+                              <VolumeX className="w-3 h-3 shrink-0" />
                               <span>Muted</span>
                             </span>
                           )
                         ) : (
-                          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-slate-500/10 text-slate-500 border border-slate-500/20">
+                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-500/10 text-slate-500 border border-slate-500/20 whitespace-nowrap">
                             <span>In-App Only</span>
                           </span>
                         )}
                       </td>
 
                       {/* Actions */}
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end space-x-2">
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <div className="inline-flex items-center justify-end space-x-1.5">
                           <button
                             onClick={() => handleOpenSinglePush(u)}
                             title="Send Personal Re-engagement Reminder"
-                            className="p-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500 text-cyan-600 dark:text-cyan-400 hover:text-white border border-cyan-500/20 transition-all"
+                            className={`p-1.5 rounded-lg border transition-colors ${
+                              isDark
+                                ? 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
+                                : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                            }`}
                           >
                             <Send className="w-3.5 h-3.5" />
                           </button>
                           <Link
                             to={`/users/${u.id}`}
                             title="View Full Artisan Profile"
-                            className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-all"
+                            className={`p-1.5 rounded-lg border transition-colors ${
+                              isDark
+                                ? 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
+                                : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                            }`}
                           >
-                            <ArrowUpRight className="w-4 h-4" />
+                            <ArrowUpRight className="w-3.5 h-3.5" />
                           </Link>
                         </div>
                       </td>
